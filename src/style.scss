@@ -1,8 +1,8 @@
-body {
-    background-image: url("bg-img.jpg");
-    margin: 0;
-    h1 {
-        font-size: 80px;
-        border: 6px solid #fff;
-    }
+.warning {
+    color: red;
+}
+
+.project-tab {
+    display: flex;
+    flex-direction: column;
 }

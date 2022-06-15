@@ -1,52 +1,75 @@
-// import "./style.scss"
-//run a window.onload function to handle the page loading and what the default project is
-import { projectObj, projectsToDOM } from "./projects"
+import listManager from "./listManager"
+import renderProjectTab from "./createProjectTab"
+import createProjectForm from "./createProjectForm"
 
-const headerElem = (() => {
-    const header = document.createElement("header")
-    const title = document.createElement("h1")
-    title.textContent = "Todo List App"
-    header.append(title)
-    return header
-})()
+const projectManager = listManager()
+const taskManager = listManager()
 
-const footerElem = (() => {
-    const footer = document.createElement("footer")
-    const footerText = document.createElement("p")
-    footerText.textContent = "Created by Darnell"
-    footer.append(footerText)
-    return footer
-})()
+//temp projects
+projectManager.addItem({name: "Heal", desc: "Getting better"})
+projectManager.addItem({name: "victory", desc: "It's not impossible"})
+projectManager.addItem({name: "Loving someone", desc: "Loving myself"})
 
-const mainElem = (() => {
-    const main = document.createElement("main")
-    const defaultList = document.createElement("div")
-    const projectList = document.createElement("div")
-    projectList.classList.add("project-list")
-    
-    const newProjectBtnn = document.createElement("button")
-    newProjectBtnn.textContent = "New Project"
-    newProjectBtnn.addEventListener("click", () => {
-        let tempProj = prompt("Please enter a new project")
-        projectObj.addProject(tempProj)
-        let oldList = document.querySelector(".project-list")
-        while (oldList.firstChild) {
-            oldList.removeChild(oldList.firstChild)
-        }
-        for (let el of projectsToDOM()){
-            oldList.append(el)
-        }
-    })
-    const todayBttn = document.createElement("button")
-    todayBttn.textContent = "Today"
-    const workBttn = document.createElement("button")
-    workBttn.textContent = "Work"
-    const personalBttn = document.createElement("button")
-    personalBttn.textContent = "Personal"
+window.addEventListener("load", () => {
+    const defCategories = [
+        {name: "Today", desc: "For tasks that are due Today"}, 
+        {name: "Someday", desc: "For tasks with no due date"},
+        {name: "Personal", desc: "Tasks related to your everyday life"},
+        {name: "Work", desc: "Tasks strictly related to not relaxing"}
+    ]
+    const catContainer = document.querySelector(".category-list-container")
+    const projContainer = document.querySelector(".project-list-container")
+    const projectTab = document.querySelector(".project-tab")
+    renderCategoryList(defCategories, catContainer)
+    renderProjectList(projectManager.getList(), projContainer)
+    renderProjectTab(projectTab, defCategories, 0, taskManager.getList(), "Today") 
+})
 
- defaultList.append(newProjectBtnn, todayBttn, workBttn, personalBttn, projectList)
-    main.append(defaultList)
-    return main
-})()
+function renderCategoryList(list, container){
+    container.replaceChildren()
+    for (let i = 0; i < list.length; i++){
+        const li = document.createElement("li")
+        const btn = document.createElement("button")
+        btn.dataset.index = i
+        let name = list[i].name
+        btn.textContent = name
+        btn.addEventListener("click", (e)=> {
+            const container = document.querySelector(".project-tab")
+            renderProjectTab(container, list, i, taskManager.getList(), name)
+        })
+        li.append(btn)
+        container.append(li)
+    }
+}
 
-document.body.append(headerElem, mainElem, footerElem)
+function checkForDeletedTab(str){
+    let currTabName = document.querySelector(".project-tab h2").textContent
+    console.log(str, currTabName)
+    if (currTabName === str){
+       document.querySelector(".project-tab").replaceChildren()
+    }
+}
+
+function renderProjectList(list, container){
+    renderCategoryList(list, container)
+    const lis = container.querySelectorAll("li")
+    for (let i = 0; i < lis.length; i++){
+        const delBtn = document.createElement("button")
+        delBtn.textContent = "Delete"
+        delBtn.dataset.index = i
+        delBtn.addEventListener("click", (e) => {
+            let testName = projectManager.getList()[i].name
+            checkForDeletedTab(testName) //fix this tomorrow
+            projectManager.deleteItem(Number(e.target.dataset.index))
+            const newList = projectManager.getList()
+            renderProjectList(newList, container)
+            
+        })
+        lis[i].append(delBtn)
+    }
+    const finalLi = document.createElement("li")
+    const addProjBtn = document.createElement("button")
+    addProjBtn.textContent = "Add Project"
+    finalLi.append(addProjBtn)
+    container.append(finalLi)
+}
