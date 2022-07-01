@@ -26,6 +26,68 @@
     <footer>
         <p>Created by Darnell</p>
     </footer>
+    <div class="modal project-form-div hide">
+        <form id="project-form">
+            <div class="input-container">
+                <label for="project-name-input">Name: </label>
+                <input id="project-name-input" type="text" name="name" required>
+            </div>
+            <div class="input-container">
+                <label for="project-desc-input">Description: </label>
+                <input id="project-desc-input" type="text" name="desc">
+            </div>
+            <div class="btn-container">
+                <input class="submit-project-btn" type="submit" value="Add">
+                <button class="close-project-modal">Cancel</button>
+            </div>
+        </form>
+    </div>
+    <div class="modal task-form-div hide">
+        <form id="task-form">
+            <div class="input-container">
+                <label for="task-name-input">Name: </label>
+                <input id="task-name-input" type="text" name="name" required>
+            </div>
+            <div class="input-container">
+                <label for="task-desc-input">Description: </label>
+                <input id="task-desc-input" type="text" name="desc">
+            </div>
+            <div class="input-container">
+                <label for="task-date">Due date: </label>
+                <input id="task-date" type="date" name="date">
+            </div>
+            <fieldset class="task-type-container">
+                <legend>What type of task is this?</legend>
+                <div class="input-container">
+                    <input type="radio" value="work" id="work" name="task-type">
+                    <label for="work">Work</label>
+                </div>
+                <div class="input-container">
+                    <input type="radio" value="personal" id="personal" name="task-type" checked>
+                    <label for="personal">Personal</label>
+                </div>
+            </fieldset>
+            <fieldset class="task-priority-container">
+                <legend>What is this task's priority?</legend>
+                <div class="input-container">
+                    <input type="radio" value="Low" id="low" name="task-priority">
+                    <label for="low">Low</label>
+                </div>
+                <div class="input-container">
+                    <input type="radio" value="Normal" id="normal" name="task-priority" checked>
+                    <label for="normal">Normal</label>
+                </div>
+                <div class="input-container">
+                    <input type="radio" value="High" id="high" name="task-priority">
+                    <label for="high">High</label>
+                </div>
+            </fieldset>
+            <div class="btn-container">
+                <input class="submit-task-btn" type="submit" value="Add Task">
+                <button class="close-task-modal">Cancel</button>
+            </div>
+        </form>
+    </div>
 </body>
 
 </html>
