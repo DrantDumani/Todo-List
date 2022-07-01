@@ -11,7 +11,7 @@ function renderCategoryInfo(container, project){
 function renderProjectInfo(container, project){
     renderCategoryInfo(container, project)
     const btn = document.createElement("button")
-    btn.id = "task-form-btn"
+    btn.classList.add("task-form-btn")
     btn.textContent = "Add Task"
     container.append(btn)
 }
@@ -29,7 +29,7 @@ function renderTaggedTasks(container, list){
         taskName.htmlFor = `complete-status${j}`
         taskName.textContent = list[j].name
         const priority = document.createElement("span")
-        priority.textContent = list[j].priority
+        priority.textContent = `Priority: ${list[j]["task-priority"]}`
         const dateField = document.createElement("span")
         dateField.textContent = list[j].date
         const delBtn = document.createElement("button")
