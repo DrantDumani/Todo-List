@@ -1,6 +1,6 @@
 import listManager from "./listManager"
 import {renderCategoryTab, renderProjectTab} from "./createTab"
-import {findProjectInfo, findProjectIndex, showProjectModal, showTaskModal, handleClosingProjectForm, 
+import {findProjectInfo, findIndex, showProjectModal, showTaskModal, handleClosingProjectForm, 
     handleClosingTaskForm, submitProjectObj, submitTaskObj, resetValidity} from "./events"
 import "./style.scss"
 
@@ -70,6 +70,9 @@ document.body.addEventListener("click", (e) => {
     }
     else if (targetClassList.contains("project-del-btn")){
         handleProjectDeletion(e)
+    }
+    else if (targetClassList.contains("delete-task-btn")){
+        handleTaskDeletion(e, "name", "tag")
     }
     else if (targetClassList.contains("add-project-btn")){
         showProjectModal(e)
@@ -153,7 +156,7 @@ function handleProjectDeletion(e){
     const container = document.querySelector(".project-list-container")
     const tabObj = currentTabManager.getCurrentTab().obj
     const projectTab = document.querySelector(".project-tab")
-    const projIndex = findProjectIndex(e)
+    const projIndex = findIndex(e)
     const clickedObj = projectManager.getList()[projIndex]
     if (tabObj === clickedObj) {
         projectTab.replaceChildren()
@@ -199,6 +202,18 @@ function handleTaskSubmission(e){
     const taskList = filterTasks(taskManager.getList(), tabObj.name, "tag")
     currentTabManager.setTaskArrOfTab(taskList)
     renderProjectTab(container, tabObj, tabInfo.taskArr)
+}
+
+function handleTaskDeletion(e, tagName, tagType){
+    const container = document.querySelector(".project-tab")
+    const index = findIndex(e)
+    const tabInfo = currentTabManager.getCurrentTab()
+    const projTaskList = tabInfo.taskArr
+    const clickedTask = projTaskList[index]
+    taskManager.deleteItem(clickedTask)
+    const newTaskList = filterTasks(taskManager.getList(), tabInfo.obj[tagName], tagType)
+    currentTabManager.setTaskArrOfTab(newTaskList)
+    renderProjectTab(container, tabInfo.obj, tabInfo.taskArr)
 }
 
 function filterTasks(list, tag, tagType){
