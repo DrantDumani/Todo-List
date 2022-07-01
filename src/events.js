@@ -4,7 +4,7 @@ function findProjectInfo(e, list){
     return {tabObj, index}
 }
 
-function findProjectIndex(e){
+function findIndex(e){
     const index = e.target.dataset.index 
     return index
 }
@@ -80,5 +80,5 @@ function resetValidity(e){
     }
 }
 
-export {findProjectInfo, findProjectIndex, showProjectModal, showTaskModal, handleClosingProjectForm, 
+export {findProjectInfo, findIndex, showProjectModal, showTaskModal, handleClosingProjectForm, 
     handleClosingTaskForm, submitProjectObj, submitTaskObj, resetValidity}
