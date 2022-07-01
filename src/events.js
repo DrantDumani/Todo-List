@@ -73,5 +73,12 @@ function submitTaskObj(e, taskNameArr){
     return dataObj
 }
 
+function resetValidity(e){
+    let inputId = e.target.id
+    if (inputId === "project-name-input" || inputId === "task-name-input"){
+        e.target.setCustomValidity("")
+    }
+}
+
 export {findProjectInfo, findProjectIndex, showProjectModal, showTaskModal, handleClosingProjectForm, 
-    handleClosingTaskForm, submitProjectObj, submitTaskObj}
+    handleClosingTaskForm, submitProjectObj, submitTaskObj, resetValidity}
