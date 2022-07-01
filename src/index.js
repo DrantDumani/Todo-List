@@ -1,5 +1,7 @@
 import listManager from "./listManager"
 import {renderCategoryTab, renderProjectTab} from "./createTab"
+import {findProjectInfo, findProjectIndex, showProjectModal, showTaskModal, handleClosingProjectForm, 
+    handleClosingTaskForm, submitProjectObj, submitTaskObj} from "./events"
 import "./style.scss"
 
 const categoryManager = listManager()
@@ -63,27 +65,43 @@ document.body.addEventListener("click", (e) => {
     if (targetClassList.contains("category-btn")){
         const list = categoryManager.getList()
         const container = document.querySelector(".project-tab")
-        const setTabFn = currentTabManager.setCurrentTab
-        // const getTabFn = currentTabManager.getCurrentTab
-        handleProjectTypes(e, list, container, setTabFn, renderCategoryTab)
+        const {tabObj, index} = findProjectInfo(e, list)
+        //you will not always be looking for a category name or a tag. Line below is a placeholder
+        const taskArr = filterTasks(taskManager.getList(), tabObj.name, "tag")
+        currentTabManager.setCurrentTab(tabObj, index, taskArr)
+        const tabInfo = currentTabManager.getCurrentTab()
+        renderCategoryTab(container, tabInfo.obj, taskArr)
     }
     else if (targetClassList.contains("project-btn")){
         const list = projectManager.getList()
         const container = document.querySelector(".project-tab")
-        const setTabFn = currentTabManager.setCurrentTab
-        // const getTabFn = currentTabManager.getCurrentTab
-        handleProjectTypes(e, list, container, setTabFn, renderProjectTab)
+        const {tabObj, index} = findProjectInfo(e, list)
+        const taskArr = filterTasks(taskManager.getList(), tabObj.name, "tag")
+        currentTabManager.setCurrentTab(tabObj, index, taskArr)
+        const tabInfo = currentTabManager.getCurrentTab()
+        renderProjectTab(container, tabInfo.obj, taskArr)
     }
     else if (targetClassList.contains("project-del-btn")){
         const container = document.querySelector(".project-list-container")
         const tabObj = currentTabManager.getCurrentTab().obj
         const projectTab = document.querySelector(".project-tab")
-        deleteProjects(e, tabObj, projectManager, projectTab, taskManager)
-        renderProjectList(projectManager.getList(), container)
+        const projIndex = findProjectIndex(e)
+        const clickedObj = projectManager.getList()[projIndex]
+        if (tabObj === clickedObj) {
+            projectTab.replaceChildren()
+        }
+        const taskList = taskManager.getList()
+        for (let i = 0; i < taskList.length; i++){
+            if (taskList[i].tag === clickedObj.name){
+                taskManager.deleteItem(taskList[i])
+            }   
+        }
         if (categoryManager.getList().includes(tabObj)){
             let list = filterTasks(taskManager.getList(), tabObj.name, "tag")
             renderCategoryTab(projectTab, tabObj, list)
         }
+        projectManager.deleteItem(clickedObj)
+        renderProjectList(projectManager.getList(), container)
     }
     else if (targetClassList.contains("add-project-btn")){
         showProjectModal(e)
@@ -110,12 +128,19 @@ document.body.addEventListener("submit", (e) => {
     let formId = e.target.id
     if (formId === "project-form"){
         const container = document.querySelector(".project-list-container")
-        handleProjectSubmission(e, projectManager)
-        renderProjectList(projectManager.getList(), container)
+        const projList = projectManager.getList()
+        const projectNames = projList.map(proj => proj.name)
+        const projectObj = submitProjectObj(e, projectNames)
+        if (!projectObj){
+            return
+        }
+        projectManager.addItem(projectObj)
+        renderProjectList(projList, container)
     }
     else if (formId === "task-form"){
         const container = document.querySelector(".project-tab")
         const tabInfo = currentTabManager.getCurrentTab()
+        const tabObj = tabInfo.obj
         const taskNames = tabInfo.taskArr.map(task => task.name)
         const taskObj = submitTaskObj(e, taskNames)
         if (!taskObj){
@@ -124,122 +149,11 @@ document.body.addEventListener("submit", (e) => {
         taskObj.complete = false
         taskObj.tag = tabInfo.obj.name
         taskManager.addItem(taskObj)
-        currentTabManager.setTaskArrOfTab(taskManager.getList())
-        renderProjectTab(container, tabInfo.obj, tabInfo.taskArr)
+        const taskList = filterTasks(taskManager.getList(), tabObj.name, "tag")
+        currentTabManager.setTaskArrOfTab(taskList)
+        renderProjectTab(container, tabObj, tabInfo.taskArr)
     }
 })
-
-//event handler functions can definitely be moved to their own module
-function handleProjectTypes(e, list, container, tabSetter, renderFn){
-    let index = Number(e.target.dataset.index)
-    const tabObj = list[index]
-    const fList = filterTasks(taskManager.getList(), tabObj.name, "tag")
-    tabSetter(tabObj, index, fList)
-    renderFn(container, tabObj, fList)
-}
-
-function deleteProjects(e, currTabObj, projListManager, projTab, taskListManager){
-    let index = e.target.dataset.index
-    let clickedObj = projListManager.getList()[index]
-    if (currTabObj === clickedObj) {
-        projTab.replaceChildren()
-    }
-    const deletedTasks= []
-    const taskList = taskListManager.getList()
-    for (let i = 0; i < taskList.length; i++){
-        if (taskList[i].tags.includes(clickedObj.name)){
-            deletedTasks.push(taskList[i])
-        }   
-    }
-    for (let task of deletedTasks){
-        taskListManager.deleteItem(task)
-    }
-    projListManager.deleteItem(clickedObj) 
-}
-
-function showProjectModal(e){
-    const modal = document.querySelector(".project-form-div")
-    modal.classList.remove("hide")
-}
-
-function showTaskModal(e){
-    const modal = document.querySelector(".task-form-div")
-    modal.classList.remove("hide")
-}
-
-function hideProjectForm(e){
-    const modal = document.querySelector(".project-form-div")
-    modal.classList.add("hide")
-}
-
-function hideTaskForm(e){
-    const modal = document.querySelector(".task-form-div")
-    modal.classList.add("hide")
-}
-
-function resetForm(form){
-    form.reset()
-}
-
-function handleClosingProjectForm(e){
-    hideProjectForm(e)
-    const form = document.querySelector("#project-form")
-    resetForm(form)
-}
-
-function handleClosingTaskForm(e){
-    hideTaskForm(e)
-    const form = document.querySelector("#task-form")
-    resetForm(form)
-}
-
-//below two functions can be further separated to just be responsible for returning an object
-function handleProjectSubmission(e, projManager){
-    e.preventDefault()
-    const data = new FormData(e.target)
-    const dataObj = Object.fromEntries(data)
-    const names = projManager.getList().map(el => el.name)
-    const nameInput = document.querySelector("#project-name-input")
-    if (names.includes(dataObj.name)){
-        //show the user an error and an invalid form saying that the name is invalid
-        //Error message will be displayed as an HTML element
-        nameInput.setCustomValidity("Cannot set duplicate project names")
-        nameInput.reportValidity()
-        return
-    }
-    projManager.addItem(dataObj)
-    handleClosingProjectForm(e)
-}
-
-// function handleTaskSubmission(e, taskListManager){
-//     e.preventDefault()
-//     const data = new FormData(e.target)
-//     const dataObj = Object.fromEntries(data)
-//     const names = taskListManager.getList().map(el => el.name)
-//     const nameInput = document.querySelector("#task-name-input")
-//     if (names.includes(dataObj.name)){
-//         nameInput.setCustomValidity("Cannot set duplicate task names")
-//         nameInput.reportValidity()
-//         return
-//     }
-//     console.log(dataObj)
-//     taskListManager.addItem(data)
-//     handleClosingTaskForm(e)
-// }
-
-function submitTaskObj(e, taskNameArr){
-    e.preventDefault()
-    const data = new FormData(e.target)
-    const dataObj = Object.fromEntries(data)
-    const nameInput = document.querySelector("#task-name-input")
-    if (taskNameArr.includes(dataObj.name)){
-        nameInput.setCustomValidity("Cannot set duplicate task names")
-        nameInput.reportValidity()
-        return
-    }
-    handleClosingTaskForm(e)
-    return dataObj
-}
 
 function renderCategoryList(list, container){
     container.replaceChildren()
@@ -283,7 +197,6 @@ function renderProjectList(list, container){
 }
 
 function filterTasks(list, tag, tagType){
-    // tagType = tagType || "tags"
-    const taggedTasks = list.filter(el => el[tagType].includes(tag))
+    const taggedTasks = list.filter(el => el[tagType] === tag)
     return taggedTasks
 }
