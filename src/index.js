@@ -1,7 +1,7 @@
 import listManager from "./listManager"
 import {renderCategoryTab, renderProjectTab} from "./createTab"
 import {findProjectInfo, findProjectIndex, showProjectModal, showTaskModal, handleClosingProjectForm, 
-    handleClosingTaskForm, submitProjectObj, submitTaskObj} from "./events"
+    handleClosingTaskForm, submitProjectObj, submitTaskObj, resetValidity} from "./events"
 import "./style.scss"
 
 const categoryManager = listManager()
@@ -63,45 +63,13 @@ window.addEventListener("load", () => {
 document.body.addEventListener("click", (e) => {
     const targetClassList = e.target.classList
     if (targetClassList.contains("category-btn")){
-        const list = categoryManager.getList()
-        const container = document.querySelector(".project-tab")
-        const {tabObj, index} = findProjectInfo(e, list)
-        //you will not always be looking for a category name or a tag. Line below is a placeholder
-        const taskArr = filterTasks(taskManager.getList(), tabObj.name, "tag")
-        currentTabManager.setCurrentTab(tabObj, index, taskArr)
-        const tabInfo = currentTabManager.getCurrentTab()
-        renderCategoryTab(container, tabInfo.obj, taskArr)
+        renderTab(e, categoryManager.getList(), "name", "tag", renderCategoryTab)
     }
     else if (targetClassList.contains("project-btn")){
-        const list = projectManager.getList()
-        const container = document.querySelector(".project-tab")
-        const {tabObj, index} = findProjectInfo(e, list)
-        const taskArr = filterTasks(taskManager.getList(), tabObj.name, "tag")
-        currentTabManager.setCurrentTab(tabObj, index, taskArr)
-        const tabInfo = currentTabManager.getCurrentTab()
-        renderProjectTab(container, tabInfo.obj, taskArr)
+        renderTab(e, projectManager.getList(), "name", "tag", renderProjectTab)
     }
     else if (targetClassList.contains("project-del-btn")){
-        const container = document.querySelector(".project-list-container")
-        const tabObj = currentTabManager.getCurrentTab().obj
-        const projectTab = document.querySelector(".project-tab")
-        const projIndex = findProjectIndex(e)
-        const clickedObj = projectManager.getList()[projIndex]
-        if (tabObj === clickedObj) {
-            projectTab.replaceChildren()
-        }
-        const taskList = taskManager.getList()
-        for (let i = 0; i < taskList.length; i++){
-            if (taskList[i].tag === clickedObj.name){
-                taskManager.deleteItem(taskList[i])
-            }   
-        }
-        if (categoryManager.getList().includes(tabObj)){
-            let list = filterTasks(taskManager.getList(), tabObj.name, "tag")
-            renderCategoryTab(projectTab, tabObj, list)
-        }
-        projectManager.deleteItem(clickedObj)
-        renderProjectList(projectManager.getList(), container)
+        handleProjectDeletion(e)
     }
     else if (targetClassList.contains("add-project-btn")){
         showProjectModal(e)
@@ -118,40 +86,16 @@ document.body.addEventListener("click", (e) => {
 })
 
 document.body.addEventListener("change", (e) => {
-    let inputId = e.target.id
-    if (inputId === "project-name-input" || inputId === "task-name-input"){
-        e.target.setCustomValidity("")
-    }
+    resetValidity(e)
 })
 
 document.body.addEventListener("submit", (e) => {
     let formId = e.target.id
     if (formId === "project-form"){
-        const container = document.querySelector(".project-list-container")
-        const projList = projectManager.getList()
-        const projectNames = projList.map(proj => proj.name)
-        const projectObj = submitProjectObj(e, projectNames)
-        if (!projectObj){
-            return
-        }
-        projectManager.addItem(projectObj)
-        renderProjectList(projList, container)
+        handleProjectSubmission(e)
     }
     else if (formId === "task-form"){
-        const container = document.querySelector(".project-tab")
-        const tabInfo = currentTabManager.getCurrentTab()
-        const tabObj = tabInfo.obj
-        const taskNames = tabInfo.taskArr.map(task => task.name)
-        const taskObj = submitTaskObj(e, taskNames)
-        if (!taskObj){
-            return
-        }
-        taskObj.complete = false
-        taskObj.tag = tabInfo.obj.name
-        taskManager.addItem(taskObj)
-        const taskList = filterTasks(taskManager.getList(), tabObj.name, "tag")
-        currentTabManager.setTaskArrOfTab(taskList)
-        renderProjectTab(container, tabObj, tabInfo.taskArr)
+        handleTaskSubmission(e)
     }
 })
 
@@ -194,6 +138,67 @@ function renderProjectList(list, container){
     addProjBtn.classList.add("add-project-btn")
     finalLi.append(addProjBtn)
     container.append(finalLi)
+}
+
+function renderTab(e, list, tagName, taskType, renderFn){
+    const container = document.querySelector(".project-tab")
+    const {tabObj, index} = findProjectInfo(e, list)
+    const taskArr = filterTasks(taskManager.getList(), tabObj[tagName], taskType)
+    currentTabManager.setCurrentTab(tabObj, index, taskArr)
+    const tabInfo = currentTabManager.getCurrentTab()
+    renderFn(container, tabInfo.obj, tabInfo.taskArr)
+}
+
+function handleProjectDeletion(e){
+    const container = document.querySelector(".project-list-container")
+    const tabObj = currentTabManager.getCurrentTab().obj
+    const projectTab = document.querySelector(".project-tab")
+    const projIndex = findProjectIndex(e)
+    const clickedObj = projectManager.getList()[projIndex]
+    if (tabObj === clickedObj) {
+        projectTab.replaceChildren()
+    }
+    const taskList = taskManager.getList()
+    for (let i = 0; i < taskList.length; i++){
+        if (taskList[i].tag === clickedObj.name){
+            taskManager.deleteItem(taskList[i])
+        }   
+    }
+    if (categoryManager.getList().includes(tabObj)){
+        let list = filterTasks(taskManager.getList(), tabObj.name, "tag")
+        renderCategoryTab(projectTab, tabObj, list)
+    }
+    projectManager.deleteItem(clickedObj)
+    renderProjectList(projectManager.getList(), container)
+}
+
+function handleProjectSubmission(e){
+    const container = document.querySelector(".project-list-container")
+    const projList = projectManager.getList()
+    const projectNames = projList.map(proj => proj.name)
+    const projectObj = submitProjectObj(e, projectNames)
+    if (!projectObj){
+        return
+    }
+    projectManager.addItem(projectObj)
+    renderProjectList(projList, container)
+}
+
+function handleTaskSubmission(e){
+    const container = document.querySelector(".project-tab")
+    const tabInfo = currentTabManager.getCurrentTab()
+    const tabObj = tabInfo.obj
+    const taskNames = tabInfo.taskArr.map(task => task.name)
+    const taskObj = submitTaskObj(e, taskNames)
+    if (!taskObj){
+        return
+    }
+    taskObj.complete = false
+    taskObj.tag = tabInfo.obj.name
+    taskManager.addItem(taskObj)
+    const taskList = filterTasks(taskManager.getList(), tabObj.name, "tag")
+    currentTabManager.setTaskArrOfTab(taskList)
+    renderProjectTab(container, tabObj, tabInfo.taskArr)
 }
 
 function filterTasks(list, tag, tagType){
