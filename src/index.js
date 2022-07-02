@@ -2,6 +2,7 @@ import listManager from "./listManager"
 import {renderCategoryTab, renderProjectTab} from "./createTab"
 import {findProjectInfo, findIndex, showProjectModal, showTaskModal, handleClosingProjectForm, 
     handleClosingTaskForm, submitProjectObj, submitTaskObj, resetValidity} from "./events"
+import * as dateManager from "./dateManager"
 import "./style.scss"
 
 const categoryManager = listManager()
@@ -26,8 +27,8 @@ const currentTabManager = (function(){
 
 (function fillCategories(){
     const defCategories = [
-        {name: "Today", desc: "For tasks that are due Today"}, 
-        {name: "Someday", desc: "For tasks with no due date"},
+        {name: "Today", desc: "For tasks that are due today"}, 
+        {name: "Tomorrow", desc: "For tasks that are due tomorrow"},
         {name: "Personal", desc: "Tasks related to your everyday life"},
         {name: "Work", desc: "Tasks strictly related to not relaxing"}
     ]
@@ -42,14 +43,15 @@ projectManager.addItem({name: "Wisdom", desc: "Learn from the past"})
 projectManager.addItem({name: "Courage", desc: "Fear nothing"})
 
 //temp tasks
-taskManager.addItem({name: "Ganondorf", tag: "Power", "task-priority": "Personal", date: "1995-12-31", priority: "Medium", desc: "Become the Great King of Evil", complete: false})
-taskManager.addItem({name: "Conquer", tag: "Power", "task-priority": "Work", date: "1995-03-20", priority: "High", desc: "Overpower your own weakness", complete: false})
-taskManager.addItem({name: "Follow ambition", tag: "Power", "task-priority": "Personal", date: "1998-04-21", priority: "High", desc: "Succeed no matter the cost", complete: false})
+taskManager.addItem({name: "Ganondorf", tag: "Power", "task-type": "Personal", date: "1995-12-31", "task-priority": "Medium", desc: "Become the Great King of Evil", complete: false})
+taskManager.addItem({name: "Conquer", tag: "Power", "task-type": "Work", date: "1995-03-20", "task-priority": "High", desc: "Overpower your own weakness", complete: false})
+taskManager.addItem({name: "Follow ambition", tag: "Power", "task-type": "Personal", date: "1998-04-21", "task-priority": "High", desc: "Succeed no matter the cost", complete: false})
 
 window.addEventListener("load", () => {
     const categoryList = categoryManager.getList()
     let list = taskManager.getList()
-    let filteredList = filterTasks(list, "Today", "tag") //quick fix until I can properly work out task tags
+    let today = dateManager.formatDate(dateManager.getCurrentDate())
+    let filteredList = filterTasks(list, today, "date")
     currentTabManager.setCurrentTab(categoryList[0], 0, filteredList)
     let tabInfo = currentTabManager.getCurrentTab()
     const catContainer = document.querySelector(".category-list-container")
@@ -60,13 +62,31 @@ window.addEventListener("load", () => {
     renderCategoryTab(projectTab, tabInfo.obj, tabInfo.taskArr, "Today")
 })
 
+function tagTasksByDate(e, date){
+    const {tabObj, index} = findProjectInfo(e, categoryManager.getList())
+    const taskArr = filterTasks(taskManager.getList(), date, "date")
+    handleTabSelection(tabObj, index, taskArr, renderCategoryTab)
+}
+
 document.body.addEventListener("click", (e) => {
     const targetClassList = e.target.classList
-    if (targetClassList.contains("category-btn")){
-        renderTab(e, categoryManager.getList(), "name", "tag", renderCategoryTab)
+    if (targetClassList.contains("today")){
+        const date = dateManager.formatDate(dateManager.getCurrentDate())
+        tagTasksByDate(e, date)
+    }
+    else if (targetClassList.contains("tomorrow")){
+        const date = dateManager.formatDate(dateManager.getTomorrow())
+        tagTasksByDate(e, date)
+    }
+    else if (targetClassList.contains("personal") || targetClassList.contains("work")){
+        const {tabObj, index} = findProjectInfo(e, categoryManager.getList())
+        const taskArr = filterTasks(taskManager.getList(), tabObj.name, "task-type")
+        handleTabSelection(tabObj, index, taskArr, renderCategoryTab)
     }
     else if (targetClassList.contains("project-btn")){
-        renderTab(e, projectManager.getList(), "name", "tag", renderProjectTab)
+        const {tabObj, index} = findProjectInfo(e, projectManager.getList())
+        const taskArr = filterTasks(taskManager.getList(), tabObj.name, "tag")
+        handleTabSelection(tabObj, index, taskArr, renderCategoryTab)
     }
     else if (targetClassList.contains("project-del-btn")){
         handleProjectDeletion(e)
@@ -107,7 +127,7 @@ function renderCategoryList(list, container){
     for (let i = 0; i < list.length; i++){
         const li = document.createElement("li")
         const btn = document.createElement("button")
-        btn.classList.add("category-btn")
+        btn.classList.add(`${list[i].name.toLowerCase()}`)
         btn.dataset.index = i
         let name = list[i].name
         btn.textContent = name
@@ -143,10 +163,8 @@ function renderProjectList(list, container){
     container.append(finalLi)
 }
 
-function renderTab(e, list, tagName, taskType, renderFn){
+function handleTabSelection(tabObj, index, taskArr, renderFn){
     const container = document.querySelector(".project-tab")
-    const {tabObj, index} = findProjectInfo(e, list)
-    const taskArr = filterTasks(taskManager.getList(), tabObj[tagName], taskType)
     currentTabManager.setCurrentTab(tabObj, index, taskArr)
     const tabInfo = currentTabManager.getCurrentTab()
     renderFn(container, tabInfo.obj, tabInfo.taskArr)
@@ -198,6 +216,7 @@ function handleTaskSubmission(e){
     }
     taskObj.complete = false
     taskObj.tag = tabInfo.obj.name
+    taskObj.date = dateManager.formatHTMLDate(taskObj.date)
     taskManager.addItem(taskObj)
     const taskList = filterTasks(taskManager.getList(), tabObj.name, "tag")
     currentTabManager.setTaskArrOfTab(taskList)
