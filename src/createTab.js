@@ -30,6 +30,8 @@ function renderTaggedTasks(container, list){
         taskName.textContent = list[j].name
         const priority = document.createElement("span")
         priority.textContent = `Priority: ${list[j]["task-priority"]}`
+        const taskType = document.createElement("span")
+        taskType.textContent = `Tag: ${list[j]["task-type"]}`
         const dateField = document.createElement("span")
         dateField.textContent = list[j].date
         const delBtn = document.createElement("button")
@@ -40,7 +42,7 @@ function renderTaggedTasks(container, list){
         expandBtn.classList.add("expand-task-details")
         expandBtn.textContent = "Expand"
         expandBtn.dataset.index = j
-        taskDiv.append(checkBox, taskName, priority, dateField, expandBtn, delBtn)
+        taskDiv.append(checkBox, taskName, priority, taskType, dateField, expandBtn, delBtn)
         li.append(taskDiv)
         ul.append(li)
     }
