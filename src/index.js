@@ -1,7 +1,8 @@
 import listManager from "./listManager"
 import {renderCategoryTab, renderProjectTab} from "./createTab"
 import {findProjectInfo, findIndex, showProjectModal, showTaskModal, handleClosingProjectForm, 
-    handleClosingTaskForm, submitProjectObj, submitTaskObj, resetValidity} from "./events"
+    handleClosingTaskForm, submitProjectObj, submitTaskObj, resetValidity, showEditForm, 
+    handleClosingEditProjectForm, submitEditProjectObj} from "./events"
 import * as dateManager from "./dateManager"
 import "./style.scss"
 
@@ -62,12 +63,6 @@ window.addEventListener("load", () => {
     renderCategoryTab(projectTab, tabInfo.obj, tabInfo.taskArr, "Today")
 })
 
-function tagTasksByDate(e, date){
-    const {tabObj, index} = findProjectInfo(e, categoryManager.getList())
-    const taskArr = filterTasks(taskManager.getList(), date, "date")
-    handleTabSelection(tabObj, index, taskArr, renderCategoryTab)
-}
-
 document.body.addEventListener("click", (e) => {
     const targetClassList = e.target.classList
     if (targetClassList.contains("today")){
@@ -86,7 +81,7 @@ document.body.addEventListener("click", (e) => {
     else if (targetClassList.contains("project-btn")){
         const {tabObj, index} = findProjectInfo(e, projectManager.getList())
         const taskArr = filterTasks(taskManager.getList(), tabObj.name, "tag")
-        handleTabSelection(tabObj, index, taskArr, renderCategoryTab)
+        handleTabSelection(tabObj, index, taskArr, renderProjectTab)
     }
     else if (targetClassList.contains("project-del-btn")){
         handleProjectDeletion(e)
@@ -106,9 +101,20 @@ document.body.addEventListener("click", (e) => {
     else if (targetClassList.contains("close-task-modal")){
         handleClosingTaskForm(e)
     }
+    else if (targetClassList.contains("edit-project-btn")){
+        openEditProjectForm(e)
+    }
+    else if (targetClassList.contains("close-edit-project-modal")){
+        handleClosingEditProjectForm(e)
+    }
 })
 
-document.body.addEventListener("change", (e) => {
+function openEditProjectForm(e){
+    const tabObj = currentTabManager.getCurrentTab().obj
+    showEditForm(e, tabObj.name, tabObj.desc)
+}
+
+document.body.addEventListener("input", (e) => {
     resetValidity(e)
 })
 
@@ -119,6 +125,9 @@ document.body.addEventListener("submit", (e) => {
     }
     else if (formId === "task-form"){
         handleTaskSubmission(e)
+    }
+    else if (formId === "edit-project-form"){
+        handleProjectEdit(e)
     }
 })
 
@@ -195,14 +204,38 @@ function handleProjectDeletion(e){
 
 function handleProjectSubmission(e){
     const container = document.querySelector(".project-list-container")
+    const nameInput = document.querySelector("#project-name-input")
     const projList = projectManager.getList()
     const projectNames = projList.map(proj => proj.name)
-    const projectObj = submitProjectObj(e, projectNames)
+    const projectObj = submitProjectObj(e, projectNames, nameInput)
     if (!projectObj){
         return
     }
     projectManager.addItem(projectObj)
     renderProjectList(projList, container)
+}
+
+function handleProjectEdit(e){
+    const container = document.querySelector(".project-list-container")
+    const tabContainer = document.querySelector(".project-tab")
+    const nameInput = document.querySelector("#edit-project-name-input")
+    const projList = projectManager.getList()
+    const projectNames = projList.map(proj => proj.name)
+    const projectObj = submitEditProjectObj(e, projectNames, nameInput)
+    if (!projectObj){
+        return
+    }
+    const tabInfo = currentTabManager.getCurrentTab()
+    const taskList = taskManager.getList()
+    for (let i = 0; i < taskList.length; i++){
+        const newTaggedTask = {...taskList[i], tag: projectObj.name}
+        taskManager.editItem(i, newTaggedTask)
+    }
+    const filterTaskList = filterTasks(taskManager.getList(), projectObj.name, "tag")
+    projectManager.editItem(tabInfo.index, projectObj)
+    renderProjectList(projectManager.getList(), container)
+    renderProjectTab(tabContainer, projectObj, filterTaskList)
+    
 }
 
 function handleTaskSubmission(e){
@@ -233,6 +266,12 @@ function handleTaskDeletion(e, tagName, tagType){
     const newTaskList = filterTasks(taskManager.getList(), tabInfo.obj[tagName], tagType)
     currentTabManager.setTaskArrOfTab(newTaskList)
     renderProjectTab(container, tabInfo.obj, tabInfo.taskArr)
+}
+
+function tagTasksByDate(e, date){
+    const {tabObj, index} = findProjectInfo(e, categoryManager.getList())
+    const taskArr = filterTasks(taskManager.getList(), date, "date")
+    handleTabSelection(tabObj, index, taskArr, renderCategoryTab)
 }
 
 function filterTasks(list, tag, tagType){

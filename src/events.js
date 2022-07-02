@@ -29,6 +29,20 @@ function hideTaskForm(e){
     modal.classList.add("hide")
 }
 
+function showEditForm(e, name, desc){
+    const modal = document.querySelector(".edit-project-div")
+    const inputName = modal.querySelector("#edit-project-name-input")
+    const inputDesc = modal.querySelector("#edit-project-desc-input")
+    inputName.value = name 
+    inputDesc.value = desc
+    modal.classList.remove("hide")
+}
+
+function hideEditTaskForm(e){
+    const modal = document.querySelector(".edit-project-div")
+    modal.classList.add("hide")
+}
+
 function resetForm(form){
     form.reset()
 }
@@ -45,17 +59,35 @@ function handleClosingTaskForm(e){
     resetForm(form)
 }
 
-function submitProjectObj(e, projNameArr){
+function handleClosingEditProjectForm(e){
+    hideEditTaskForm(e)
+    const form = document.querySelector("#edit-project-form")
+    resetForm(form)
+}
+
+function submitProjectObj(e, projNameArr, nameInput){
     e.preventDefault()
     const data = new FormData(e.target)
     const dataObj = Object.fromEntries(data)
-    const nameInput = document.querySelector("#project-name-input")
     if (projNameArr.includes(dataObj.name)){
         nameInput.setCustomValidity("Cannot set duplicate project names")
         nameInput.reportValidity()
         return
     }
     handleClosingProjectForm(e)
+    return dataObj
+}
+
+function submitEditProjectObj(e, projNameArr, nameInput){
+    e.preventDefault()
+    const data = new FormData(e.target)
+    const dataObj = Object.fromEntries(data)
+    if (projNameArr.includes(dataObj.name)){
+        nameInput.setCustomValidity("Cannot set duplicate project names")
+        nameInput.reportValidity()
+        return
+    }
+    handleClosingEditProjectForm(e)
     return dataObj
 }
 
@@ -75,10 +107,12 @@ function submitTaskObj(e, taskNameArr){
 
 function resetValidity(e){
     let inputId = e.target.id
-    if (inputId === "project-name-input" || inputId === "task-name-input"){
+    if (inputId === "project-name-input" || inputId === "task-name-input"
+        || inputId === "edit-project-name-input" || inputId === "edit-task-name-input"){
         e.target.setCustomValidity("")
     }
 }
 
 export {findProjectInfo, findIndex, showProjectModal, showTaskModal, handleClosingProjectForm, 
-    handleClosingTaskForm, submitProjectObj, submitTaskObj, resetValidity}
+    handleClosingTaskForm, submitProjectObj, submitTaskObj, resetValidity, showEditForm, 
+    handleClosingEditProjectForm, submitEditProjectObj}
