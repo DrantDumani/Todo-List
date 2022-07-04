@@ -10,10 +10,13 @@ function renderCategoryInfo(container, project){
 //separated functions for rendering tabs for containers and projects
 function renderProjectInfo(container, project){
     renderCategoryInfo(container, project)
-    const btn = document.createElement("button")
-    btn.classList.add("task-form-btn")
-    btn.textContent = "Add Task"
-    container.append(btn)
+    const editBtn = document.createElement("button")
+    editBtn.textContent = "Edit Project"
+    editBtn.classList.add("edit-project-btn")
+    const addBtn = document.createElement("button")
+    addBtn.classList.add("task-form-btn")
+    addBtn.textContent = "Add Task"
+    container.append(editBtn, addBtn)
 }
 
 //this should just be fed an already filtered list of tasks
