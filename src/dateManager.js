@@ -20,3 +20,7 @@ export function formatHTMLDate(dateStr){
     return formatDate
 }
 
+export function revertHTMLDate(formatStr){
+    return formatStr.replace(/(\d{2})\/(\d{2})\/(\d{4})/g, "$3-$1-$2")
+}
+

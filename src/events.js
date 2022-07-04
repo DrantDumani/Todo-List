@@ -78,6 +78,16 @@ function submitProjectObj(e, projNameArr, nameInput){
     return dataObj
 }
 
+function showExpandTaskModal(e){
+    const modal = document.querySelector(".expanded-task-info")
+    modal.classList.remove("hide")
+}
+
+function hideExpandTaskModal(e){
+    const modal = document.querySelector(".expanded-task-info")
+    modal.classList.add("hide")
+}
+
 function submitEditProjectObj(e, projNameArr, nameInput){
     e.preventDefault()
     const data = new FormData(e.target)
@@ -115,4 +125,4 @@ function resetValidity(e){
 
 export {findProjectInfo, findIndex, showProjectModal, showTaskModal, handleClosingProjectForm, 
     handleClosingTaskForm, submitProjectObj, submitTaskObj, resetValidity, showEditForm, 
-    handleClosingEditProjectForm, submitEditProjectObj}
+    handleClosingEditProjectForm, submitEditProjectObj, hideExpandTaskModal, showExpandTaskModal}

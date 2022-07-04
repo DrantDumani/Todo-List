@@ -2,7 +2,7 @@ import listManager from "./listManager"
 import {renderCategoryTab, renderProjectTab} from "./createTab"
 import {findProjectInfo, findIndex, showProjectModal, showTaskModal, handleClosingProjectForm, 
     handleClosingTaskForm, submitProjectObj, submitTaskObj, resetValidity, showEditForm, 
-    handleClosingEditProjectForm, submitEditProjectObj} from "./events"
+    handleClosingEditProjectForm, submitEditProjectObj, hideExpandTaskModal, showExpandTaskModal} from "./events"
 import * as dateManager from "./dateManager"
 import "./style.scss"
 
@@ -107,7 +107,74 @@ document.body.addEventListener("click", (e) => {
     else if (targetClassList.contains("close-edit-project-modal")){
         handleClosingEditProjectForm(e)
     }
+    else if (targetClassList.contains("expand-task-details")){
+        showExpandTaskModal(e)
+        fillTaskModal(e)
+    }
+    else if (targetClassList.contains("close-expandTask-modal")){
+        hideExpandTaskModal(e)
+    }
+    else if (targetClassList.contains("edit-task-btn")){
+        showEditTaskModal(e)
+        fillEditTaskForm(e)
+    }
+    else if (targetClassList.contains("close-edit-task-modal")){
+        hideEditTaskModal()
+    }
 })
+
+function hideEditTaskModal(){
+    const modal = document.querySelector(".edit-task-form-div")
+    modal.classList.add("hide")
+}
+
+function handleClosingEditTaskModal(){
+    hideEditTaskModal()
+    const form = document.querySelector("#edit-task-form")
+    // resetForm(form)
+    form.reset()
+}
+
+function showEditTaskModal(e){
+    const modal = document.querySelector(".edit-task-form-div")
+    modal.classList.remove("hide")
+}
+
+function fillEditTaskForm(e){
+    const index = e.target.dataset.index
+    const form = document.querySelector("#edit-task-form")
+    form.dataset.index = index
+    const task = currentTabManager.getCurrentTab().taskArr[index]
+    const nameInput = document.querySelector("#edit-task-name-input")
+    nameInput.value = task.name
+    const descInput = document.querySelector("#edit-task-desc-input")
+    descInput.value = task.desc
+    const dateInput = document.querySelector("#edit-task-date")
+    dateInput.value = dateManager.revertHTMLDate(task.date)
+    const chosenType = task["task-type"].toLowerCase()
+    const typeInput = document.querySelector(`#edit-${chosenType}`)
+    typeInput.checked = true
+    const chosenPriority = task["task-priority"].toLowerCase()
+    const priorityInput = document.querySelector(`#edit-${chosenPriority}`)
+    priorityInput.checked = true
+}
+
+function fillTaskModal(e){
+    const index = Number(e.target.dataset.index)
+    const editBtn = document.querySelector(".edit-task-btn")
+    editBtn.dataset.index = index
+    const task = currentTabManager.getCurrentTab().taskArr[index]
+    const taskTitle = document.querySelector(".task-title")
+    taskTitle.textContent = task.name
+    const taskDesc = document.querySelector(".task-description")
+    taskDesc.textContent = task.desc
+    const taskDate = document.querySelector(".task-date-info")
+    taskDate.textContent = dateManager.formatHTMLDate(`Due Date: ${task.date}`)
+    const taskType = document.querySelector(".task-type-info")
+    taskType.textContent = `Type: ${task["task-type"]}`
+    const taskPriority = document.querySelector(".task-priority-info")
+    taskPriority.textContent = `Priority: ${task["task-priority"]}`
+}
 
 function openEditProjectForm(e){
     const tabObj = currentTabManager.getCurrentTab().obj
@@ -129,7 +196,25 @@ document.body.addEventListener("submit", (e) => {
     else if (formId === "edit-project-form"){
         handleProjectEdit(e)
     }
+    else if (formId === "edit-task-form"){
+        handleEditTaskSubmission(e)
+        fillTaskModal(e)
+    }
 })
+
+function submitEditTaskObj(e, taskNameArr){
+    e.preventDefault()
+    const data = new FormData(e.target)
+    const dataObj = Object.fromEntries(data)
+    const nameInput = document.querySelector("#edit-task-name-input")
+    if (taskNameArr.includes(dataObj.name)){
+        nameInput.setCustomValidity("Cannot set duplicate task names")
+        nameInput.reportValidity()
+        return
+    }
+    handleClosingTaskForm(e)
+    return dataObj
+}
 
 function renderCategoryList(list, container){
     container.replaceChildren()
@@ -236,6 +321,32 @@ function handleProjectEdit(e){
     renderProjectList(projectManager.getList(), container)
     renderProjectTab(tabContainer, projectObj, filterTaskList)
     
+}
+
+function handleEditTaskSubmission(e){
+    const taskIndex = Number(e.target.dataset.index)
+    const container = document.querySelector(".project-tab")
+    const oldTaskObj = currentTabManager.getCurrentTab().taskArr[taskIndex]
+    const taskNames = taskManager.getList().map(task => task.name)
+    const taskObj = submitEditTaskObj(e, taskNames)
+    if (!taskObj){
+        return
+    }
+    const newTaskObj = {...oldTaskObj, ...taskObj}
+    newTaskObj.date = dateManager.formatHTMLDate(newTaskObj.date)
+    // taskManager.editItem(taskIndex, newTaskObj)
+    const fullTaskList = taskManager.getList()
+    for (let i = 0; i < fullTaskList.length; i++){
+        if (fullTaskList[i] === oldTaskObj){
+            taskManager.editItem(i, newTaskObj)
+        }
+    }
+    const tabInfo = currentTabManager.getCurrentTab()
+    const taskList = filterTasks(taskManager.getList(), tabInfo.obj.name, "tag")
+    currentTabManager.setTaskArrOfTab(taskList)
+    renderProjectTab(container, tabInfo.obj, tabInfo.taskArr)
+    handleClosingEditTaskModal(e)
+
 }
 
 function handleTaskSubmission(e){
