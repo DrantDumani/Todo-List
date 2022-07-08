@@ -2,7 +2,9 @@ import listManager from "./listManager"
 import {renderCategoryTab, renderProjectTab} from "./createTab"
 import {findProjectInfo, findIndex, showProjectModal, showTaskModal, handleClosingProjectForm, 
     handleClosingTaskForm, submitProjectObj, submitTaskObj, resetValidity, showEditForm, 
-    handleClosingEditProjectForm, submitEditProjectObj, hideExpandTaskModal, showExpandTaskModal} from "./events"
+    handleClosingEditProjectForm, submitEditProjectObj, hideExpandTaskModal, showExpandTaskModal,
+    handleClosingEditTaskModal, showEditTaskModal
+} from "./events"
 import * as dateManager from "./dateManager"
 import "./style.scss"
 
@@ -37,16 +39,6 @@ const currentTabManager = (function(){
         categoryManager.addItem(el)
     }
 })()
-
-//temp projects
-projectManager.addItem({name: "Power", desc: "Destroy weakness"})
-projectManager.addItem({name: "Wisdom", desc: "Learn from the past"})
-projectManager.addItem({name: "Courage", desc: "Fear nothing"})
-
-//temp tasks
-taskManager.addItem({name: "Ganondorf", tag: "Power", "task-type": "Personal", date: "1995-12-31", "task-priority": "Medium", desc: "Become the Great King of Evil", complete: false})
-taskManager.addItem({name: "Conquer", tag: "Power", "task-type": "Work", date: "1995-03-20", "task-priority": "High", desc: "Overpower your own weakness", complete: false})
-taskManager.addItem({name: "Follow ambition", tag: "Power", "task-type": "Personal", date: "1998-04-21", "task-priority": "High", desc: "Succeed no matter the cost", complete: false})
 
 window.addEventListener("load", () => {
     const categoryList = categoryManager.getList()
@@ -122,23 +114,6 @@ document.body.addEventListener("click", (e) => {
         hideEditTaskModal()
     }
 })
-
-function hideEditTaskModal(){
-    const modal = document.querySelector(".edit-task-form-div")
-    modal.classList.add("hide")
-}
-
-function handleClosingEditTaskModal(){
-    hideEditTaskModal()
-    const form = document.querySelector("#edit-task-form")
-    // resetForm(form)
-    form.reset()
-}
-
-function showEditTaskModal(e){
-    const modal = document.querySelector(".edit-task-form-div")
-    modal.classList.remove("hide")
-}
 
 function fillEditTaskForm(e){
     const index = e.target.dataset.index
@@ -305,16 +280,21 @@ function handleProjectEdit(e){
     const tabContainer = document.querySelector(".project-tab")
     const nameInput = document.querySelector("#edit-project-name-input")
     const projList = projectManager.getList()
-    const projectNames = projList.map(proj => proj.name)
+    const tabInfo = currentTabManager.getCurrentTab()
+    const projTaskList = tabInfo.taskArr
+    const currentProjName = tabInfo.obj.name
+    const projectNames = projList.map(proj => proj.name).filter(name => name !== currentProjName)
     const projectObj = submitEditProjectObj(e, projectNames, nameInput)
     if (!projectObj){
         return
     }
-    const tabInfo = currentTabManager.getCurrentTab()
+    
     const taskList = taskManager.getList()
     for (let i = 0; i < taskList.length; i++){
-        const newTaggedTask = {...taskList[i], tag: projectObj.name}
-        taskManager.editItem(i, newTaggedTask)
+        if (projTaskList.includes(taskList[i])){
+            const newTaggedTask = {...taskList[i], tag: projectObj.name}
+            taskManager.editItem(i, newTaggedTask)
+        }   
     }
     const filterTaskList = filterTasks(taskManager.getList(), projectObj.name, "tag")
     projectManager.editItem(tabInfo.index, projectObj)
@@ -327,14 +307,14 @@ function handleEditTaskSubmission(e){
     const taskIndex = Number(e.target.dataset.index)
     const container = document.querySelector(".project-tab")
     const oldTaskObj = currentTabManager.getCurrentTab().taskArr[taskIndex]
-    const taskNames = taskManager.getList().map(task => task.name)
+    const oldTaskName = oldTaskObj.name
+    const taskNames = taskManager.getList().map(task => task.name).filter(name => name !== oldTaskName)
     const taskObj = submitEditTaskObj(e, taskNames)
     if (!taskObj){
         return
     }
     const newTaskObj = {...oldTaskObj, ...taskObj}
     newTaskObj.date = dateManager.formatHTMLDate(newTaskObj.date)
-    // taskManager.editItem(taskIndex, newTaskObj)
     const fullTaskList = taskManager.getList()
     for (let i = 0; i < fullTaskList.length; i++){
         if (fullTaskList[i] === oldTaskObj){

@@ -123,6 +123,24 @@ function resetValidity(e){
     }
 }
 
+function hideEditTaskModal(){
+    const modal = document.querySelector(".edit-task-form-div")
+    modal.classList.add("hide")
+}
+
+function handleClosingEditTaskModal(){
+    hideEditTaskModal()
+    const form = document.querySelector("#edit-task-form")
+    form.reset()
+}
+
+function showEditTaskModal(e){
+    const modal = document.querySelector(".edit-task-form-div")
+    modal.classList.remove("hide")
+}
+
 export {findProjectInfo, findIndex, showProjectModal, showTaskModal, handleClosingProjectForm, 
     handleClosingTaskForm, submitProjectObj, submitTaskObj, resetValidity, showEditForm, 
-    handleClosingEditProjectForm, submitEditProjectObj, hideExpandTaskModal, showExpandTaskModal}
+    handleClosingEditProjectForm, submitEditProjectObj, hideExpandTaskModal, showExpandTaskModal,
+    handleClosingEditTaskModal, showEditTaskModal
+}
