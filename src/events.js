@@ -139,8 +139,13 @@ function showEditTaskModal(e){
     modal.classList.remove("hide")
 }
 
+function fetchTaskIndex(e){
+    const index = e.target.dataset.index
+    return index
+}
+
 export {findProjectInfo, findIndex, showProjectModal, showTaskModal, handleClosingProjectForm, 
     handleClosingTaskForm, submitProjectObj, submitTaskObj, resetValidity, showEditForm, 
     handleClosingEditProjectForm, submitEditProjectObj, hideExpandTaskModal, showExpandTaskModal,
-    handleClosingEditTaskModal, showEditTaskModal
+    handleClosingEditTaskModal, showEditTaskModal, hideEditTaskModal, fetchTaskIndex
 }
