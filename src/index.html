@@ -9,32 +9,38 @@
 </head>
 
 <body>
-    <header>
-        <h1 class="title">Todo List</h1>
-    </header>
-    <main class="page-content">
-        <div class="category-div">
-            <h2>Categories</h2>
-            <ul class="category-list-container"></ul>
-        </div>
-        <div class="project-div">
-            <h2>Projects</h2>
-            <ul class="project-list-container"></ul>
-        </div>
-        <div class="project-tab"></div>
-    </main>
-    <footer>
-        <p>Created by Darnell</p>
-    </footer>
+    <div class="page-container">
+        <header>
+            <h1 class="title">Todo List</h1>
+        </header>
+        <main class="page-content">
+            <div class="sidebar-nav">
+                <div class="category-div">
+                    <h2>Categories</h2>
+                    <ul class="category-list-container"></ul>
+                </div>
+                <div class="project-div">
+                    <h2>Projects</h2>
+                    <ul class="project-list-container"></ul>
+                </div>
+            </div>
+            <div class="project-tab"></div>
+        </main>
+        <footer>
+            <p>Created by Darnell
+                <a class="footer-link" href="https://github.com/DrantDumani/Todo-List" target="_blank">Github</a>
+            </p>
+        </footer>
+    </div>
     <div class="modal project-form-div hide">
         <form id="project-form">
             <div class="input-container">
                 <label for="project-name-input">Name: </label>
-                <input id="project-name-input" type="text" name="name" required>
+                <input id="project-name-input" type="text" name="name" maxlength="75" required>
             </div>
             <div class="input-container">
                 <label for="project-desc-input">Description: </label>
-                <input id="project-desc-input" type="text" name="desc">
+                <textarea id="project-desc-input" name="desc" maxlength="200"></textarea>
             </div>
             <div class="btn-container">
                 <input class="submit-project-btn" type="submit" value="Add">
@@ -58,26 +64,26 @@
             </div>
             <fieldset class="task-type-container">
                 <legend>What type of task is this?</legend>
-                <div class="input-container">
+                <div class="radio-container">
                     <input type="radio" value="Work" id="work" name="task-type">
                     <label for="work">Work</label>
                 </div>
-                <div class="input-container">
+                <div class="radio-container">
                     <input type="radio" value="Personal" id="personal" name="task-type" checked>
                     <label for="personal">Personal</label>
                 </div>
             </fieldset>
             <fieldset class="task-priority-container">
                 <legend>What is this task's priority?</legend>
-                <div class="input-container">
+                <div class="radio-container">
                     <input type="radio" value="Low" id="low" name="task-priority">
                     <label for="low">Low</label>
                 </div>
-                <div class="input-container">
+                <div class="radio-container">
                     <input type="radio" value="Medium" id="medium" name="task-priority" checked>
                     <label for="medium">Medium</label>
                 </div>
-                <div class="input-container">
+                <div class="radio-container">
                     <input type="radio" value="High" id="high" name="task-priority">
                     <label for="high">High</label>
                 </div>
@@ -92,11 +98,11 @@
         <form id="edit-project-form">
             <div class="input-container">
                 <label for="edit-project-name-input">Name: </label>
-                <input id="edit-project-name-input" type="text" name="name" required>
+                <input id="edit-project-name-input" type="text" name="name" maxlength="75" required>
             </div>
             <div class="input-container">
                 <label for="edit-project-desc-input">Description: </label>
-                <input id="edit-project-desc-input" type="text" name="desc">
+                <textarea id="edit-project-desc-input" name="desc" maxlength="200"></textarea>
             </div>
             <div class="btn-container">
                 <input class="submit-edit-project" type="submit" value="Edit Project">
@@ -105,13 +111,15 @@
         </form>
     </div>
     <div class="expanded-task-info modal hide">
-        <button class="edit-task-btn">Edit task</button>
-        <button class="close-expandTask-modal">Close</button>
-        <h2 class="task-title"></h2>
-        <p class="task-description"></p>
-        <p class="task-date-info"></p>
-        <p class="task-type-info"></p>
-        <p class="task-priority-info"></p>
+        <div class="task-info-container">
+            <h2 class="task-title"></h2>
+            <p class="task-description"></p>
+            <p class="task-date-info"></p>
+            <p class="task-type-info"></p>
+            <p class="task-priority-info"></p>
+            <button class="edit-task-btn">Edit task</button>
+            <button class="close-expandTask-modal">Close</button>
+        </div>
     </div>
 
     <div class="modal edit-task-form-div hide">
@@ -130,26 +138,26 @@
             </div>
             <fieldset class="task-type-container">
                 <legend>What type of task is this?</legend>
-                <div class="input-container">
+                <div class="radio-container">
                     <input type="radio" value="Work" id="edit-work" name="task-type">
                     <label for="edit-work">Work</label>
                 </div>
-                <div class="input-container">
+                <div class="radio-container">
                     <input type="radio" value="Personal" id="edit-personal" name="task-type">
                     <label for="edit-personal">Personal</label>
                 </div>
             </fieldset>
             <fieldset class="task-priority-container">
                 <legend>What is this task's priority?</legend>
-                <div class="input-container">
+                <div class="radio-container">
                     <input type="radio" value="Low" id="edit-low" name="task-priority">
                     <label for="edit-low">Low</label>
                 </div>
-                <div class="input-container">
+                <div class="radio-container">
                     <input type="radio" value="Medium" id="edit-medium" name="task-priority">
                     <label for="edit-medium">Medium</label>
                 </div>
-                <div class="input-container">
+                <div class="radio-container">
                     <input type="radio" value="High" id="edit-high" name="task-priority">
                     <label for="edit-high">High</label>
                 </div>

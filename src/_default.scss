@@ -1,0 +1,15 @@
+body {
+    margin: 0;
+    box-sizing: border-box;
+    min-height: 100vh;
+}
+
+button,
+input[type=submit] {
+    background-color: inherit;
+    color: inherit;
+    border: 1px solid #fff;
+    font-family: inherit;
+    border-radius: 12px;
+    font-size: 24px;
+}

@@ -3,7 +3,7 @@ import {renderCategoryTab, renderProjectTab} from "./createTab"
 import {findProjectInfo, findIndex, showProjectModal, showTaskModal, handleClosingProjectForm, 
     handleClosingTaskForm, submitProjectObj, submitTaskObj, resetValidity, showEditForm, 
     handleClosingEditProjectForm, submitEditProjectObj, hideExpandTaskModal, showExpandTaskModal,
-    handleClosingEditTaskModal, showEditTaskModal
+    handleClosingEditTaskModal, showEditTaskModal, hideEditTaskModal, fetchTaskIndex
 } from "./events"
 import * as dateManager from "./dateManager"
 import "./style.scss"
@@ -160,6 +160,13 @@ document.body.addEventListener("input", (e) => {
     resetValidity(e)
 })
 
+document.body.addEventListener("change", (e) => {
+    if (e.target.type === "checkbox"){
+        const index = fetchTaskIndex(e)
+        toggleCompletionStatus(index)
+    }
+})
+
 document.body.addEventListener("submit", (e) => {
     let formId = e.target.id
     if (formId === "project-form"){
@@ -218,7 +225,7 @@ function renderProjectList(list, container){
 
         const delBtn = document.createElement("button")
         delBtn.classList.add("project-del-btn")
-        delBtn.textContent = "Delete"
+        delBtn.textContent = "X"
         delBtn.dataset.index = i
         btnDiv.append(btn, delBtn)
         li.append(btnDiv)
@@ -287,8 +294,7 @@ function handleProjectEdit(e){
     const projectObj = submitEditProjectObj(e, projectNames, nameInput)
     if (!projectObj){
         return
-    }
-    
+    }    
     const taskList = taskManager.getList()
     for (let i = 0; i < taskList.length; i++){
         if (projTaskList.includes(taskList[i])){
@@ -298,6 +304,7 @@ function handleProjectEdit(e){
     }
     const filterTaskList = filterTasks(taskManager.getList(), projectObj.name, "tag")
     projectManager.editItem(tabInfo.index, projectObj)
+    currentTabManager.setCurrentTab(projectObj, tabInfo.index, filterTaskList)
     renderProjectList(projectManager.getList(), container)
     renderProjectTab(tabContainer, projectObj, filterTaskList)
     
@@ -368,4 +375,14 @@ function tagTasksByDate(e, date){
 function filterTasks(list, tag, tagType){
     const taggedTasks = list.filter(el => el[tagType] === tag)
     return taggedTasks
+}
+
+function toggleCompletionStatus(index){
+    const tabInfo = currentTabManager.getCurrentTab()
+    const taskObj = tabInfo.taskArr[index]
+    const completionStatus = !taskObj.complete
+    const newTaskObj = {...taskObj, complete: completionStatus}
+    taskManager.editItem(index, newTaskObj)
+    const taskList = filterTasks(taskManager.getList(), tabInfo.obj.name, "tag")
+    currentTabManager.setTaskArrOfTab(taskList)
 }
