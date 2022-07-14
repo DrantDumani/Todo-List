@@ -6,6 +6,7 @@ import {findProjectInfo, findIndex, showProjectModal, showTaskModal, handleClosi
     handleClosingEditTaskModal, showEditTaskModal, hideEditTaskModal, fetchTaskIndex
 } from "./events"
 import * as dateManager from "./dateManager"
+import { checkLocalStorage, getStorage, updateStorage } from "./localStorage"
 import "./style.scss"
 
 const categoryManager = listManager()
@@ -40,7 +41,22 @@ const currentTabManager = (function(){
     }
 })()
 
+function populateList(managerObj, arr){
+    for (let el of arr){
+        managerObj.addItem(el)
+    }
+}
+
 window.addEventListener("load", () => {
+    const projectList = getStorage("projects")
+    const taskList = getStorage("tasks")
+    if (projectList){
+        populateList(projectManager, projectList)
+    }
+    if (taskList){
+        populateList(taskManager, taskList)
+    }
+
     const categoryList = categoryManager.getList()
     let list = taskManager.getList()
     let today = dateManager.formatDate(dateManager.getCurrentDate())
@@ -267,6 +283,8 @@ function handleProjectDeletion(e){
     }
     projectManager.deleteItem(clickedObj)
     renderProjectList(projectManager.getList(), container)
+    updateStorage("projects", projectManager.getList())
+    updateStorage("tasks", taskManager.getList())
 }
 
 function handleProjectSubmission(e){
@@ -280,6 +298,7 @@ function handleProjectSubmission(e){
     }
     projectManager.addItem(projectObj)
     renderProjectList(projList, container)
+    updateStorage("projects", projList)
 }
 
 function handleProjectEdit(e){
@@ -307,7 +326,8 @@ function handleProjectEdit(e){
     currentTabManager.setCurrentTab(projectObj, tabInfo.index, filterTaskList)
     renderProjectList(projectManager.getList(), container)
     renderProjectTab(tabContainer, projectObj, filterTaskList)
-    
+    updateStorage("projects", projList)
+    updateStorage("tasks", taskList)
 }
 
 function handleEditTaskSubmission(e){
@@ -333,7 +353,7 @@ function handleEditTaskSubmission(e){
     currentTabManager.setTaskArrOfTab(taskList)
     renderProjectTab(container, tabInfo.obj, tabInfo.taskArr)
     handleClosingEditTaskModal(e)
-
+    updateStorage("tasks", fullTaskList)
 }
 
 function handleTaskSubmission(e){
@@ -352,6 +372,7 @@ function handleTaskSubmission(e){
     const taskList = filterTasks(taskManager.getList(), tabObj.name, "tag")
     currentTabManager.setTaskArrOfTab(taskList)
     renderProjectTab(container, tabObj, tabInfo.taskArr)
+    updateStorage("tasks", taskManager.getList())
 }
 
 function handleTaskDeletion(e, tagName, tagType){
@@ -364,6 +385,7 @@ function handleTaskDeletion(e, tagName, tagType){
     const newTaskList = filterTasks(taskManager.getList(), tabInfo.obj[tagName], tagType)
     currentTabManager.setTaskArrOfTab(newTaskList)
     renderProjectTab(container, tabInfo.obj, tabInfo.taskArr)
+    updateStorage("tasks", taskManager.getList())
 }
 
 function tagTasksByDate(e, date){
