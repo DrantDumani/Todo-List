@@ -52,11 +52,11 @@
         <form id="task-form">
             <div class="input-container">
                 <label for="task-name-input">Name: </label>
-                <input id="task-name-input" type="text" name="name" required>
+                <input id="task-name-input" type="text" name="name" maxlength="75" required>
             </div>
             <div class="input-container">
                 <label for="task-desc-input">Description: </label>
-                <input id="task-desc-input" type="text" name="desc">
+                <textarea id="task-desc-input" type="text" name="desc" maxlength="200"></textarea>
             </div>
             <div class="input-container">
                 <label for="task-date">Due date: </label>
@@ -126,11 +126,11 @@
         <form id="edit-task-form">
             <div class="input-container">
                 <label for="edit-task-name-input">Name: </label>
-                <input id="edit-task-name-input" type="text" name="name" required>
+                <input id="edit-task-name-input" type="text" name="name" required maxlength="75">
             </div>
             <div class="input-container">
                 <label for="edit-task-desc-input">Description: </label>
-                <input id="edit-task-desc-input" type="text" name="desc">
+                <textarea id="edit-task-desc-input" type="text" name="desc" maxlength="200"></textarea>
             </div>
             <div class="input-container">
                 <label for="edit-task-date">Due date: </label>
