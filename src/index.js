@@ -3,7 +3,7 @@ import {renderCategoryTab, renderProjectTab} from "./createTab"
 import {findProjectInfo, findIndex, showProjectModal, showTaskModal, handleClosingProjectForm, 
     handleClosingTaskForm, submitProjectObj, submitTaskObj, resetValidity, showEditForm, 
     handleClosingEditProjectForm, submitEditProjectObj, hideExpandTaskModal, showExpandTaskModal,
-    handleClosingEditTaskModal, showEditTaskModal, hideEditTaskModal, fetchTaskIndex
+    handleClosingEditTaskModal, showEditTaskModal, hideEditTaskModal, fetchTaskIndex, toggleMobileMenu
 } from "./events"
 import * as dateManager from "./dateManager"
 import { checkLocalStorage, getStorage, updateStorage } from "./localStorage"
@@ -122,6 +122,9 @@ document.body.addEventListener("click", (e) => {
     }
     else if (targetClassList.contains("close-edit-task-modal")){
         hideEditTaskModal()
+    }
+    else if (targetClassList.contains("mobile-burger")){
+        toggleMobileMenu()
     }
 })
 
@@ -353,9 +356,6 @@ function handleEditTaskSubmission(e){
         currentTabManager.setTaskArrOfTab(taskList)
         renderProjectTab(container, tabInfo.obj, tabInfo.taskArr)
     } 
-    // const taskList = filterTasks(taskManager.getList(), tabInfo.obj.name, "tag")
-    // currentTabManager.setTaskArrOfTab(taskList)
-
     handleClosingEditTaskModal(e)
     updateStorage("tasks", fullTaskList)
 }
@@ -396,9 +396,6 @@ function handleTaskDeletion(e, tagName, tagType){
         currentTabManager.setTaskArrOfTab(newTaskList)
         renderProjectTab(container, tabInfo.obj, tabInfo.taskArr)
     } 
-    // const newTaskList = filterTasks(taskManager.getList(), tabInfo.obj[tagName], tagType)
-    // currentTabManager.setTaskArrOfTab(newTaskList)
-    
     updateStorage("tasks", taskManager.getList())
 }
 

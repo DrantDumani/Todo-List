@@ -144,8 +144,13 @@ function fetchTaskIndex(e){
     return index
 }
 
+function toggleMobileMenu(){
+    const menu = document.querySelector(".sidebar-nav")
+    menu.classList.toggle("visible")
+}
+
 export {findProjectInfo, findIndex, showProjectModal, showTaskModal, handleClosingProjectForm, 
     handleClosingTaskForm, submitProjectObj, submitTaskObj, resetValidity, showEditForm, 
     handleClosingEditProjectForm, submitEditProjectObj, hideExpandTaskModal, showExpandTaskModal,
-    handleClosingEditTaskModal, showEditTaskModal, hideEditTaskModal, fetchTaskIndex
+    handleClosingEditTaskModal, showEditTaskModal, hideEditTaskModal, fetchTaskIndex, toggleMobileMenu
 }

@@ -28,7 +28,13 @@ $task-proj-font: 36px;
 
 header {
     @extend %header-footer-style;
-    padding: 16px 0;
+    display: flex;
+    justify-content: space-between;
+    .mobile-burger {
+        display: none;
+        border: none;
+        cursor: pointer;
+    }
 }
 
 footer {
@@ -204,6 +210,17 @@ input[type="submit"]:hover {
 }
 
 @media (max-width: 500px) {
+    header {
+        .mobile-burger {
+            display: block;
+        }
+    }
+    .sidebar-nav {
+        display: none;
+    }
+    .visible {
+        display: block;
+    }
     .page-content {
         flex-wrap: wrap;
     }
