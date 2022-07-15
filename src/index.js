@@ -343,9 +343,19 @@ function handleEditTaskSubmission(e){
         }
     }
     const tabInfo = currentTabManager.getCurrentTab()
-    const taskList = filterTasks(taskManager.getList(), tabInfo.obj.name, "tag")
-    currentTabManager.setTaskArrOfTab(taskList)
-    renderProjectTab(container, tabInfo.obj, tabInfo.taskArr)
+    const categoryList = categoryManager.getList()
+    if (categoryList.includes(tabInfo.obj)){
+        handleCategoryTaskList()
+        renderCategoryTab(container, tabInfo.obj, tabInfo.taskArr)
+    }
+    else {
+        const taskList = filterTasks(taskManager.getList(), tabInfo.obj.name, "tag")
+        currentTabManager.setTaskArrOfTab(taskList)
+        renderProjectTab(container, tabInfo.obj, tabInfo.taskArr)
+    } 
+    // const taskList = filterTasks(taskManager.getList(), tabInfo.obj.name, "tag")
+    // currentTabManager.setTaskArrOfTab(taskList)
+
     handleClosingEditTaskModal(e)
     updateStorage("tasks", fullTaskList)
 }
@@ -376,9 +386,19 @@ function handleTaskDeletion(e, tagName, tagType){
     const projTaskList = tabInfo.taskArr
     const clickedTask = projTaskList[index]
     taskManager.deleteItem(clickedTask)
-    const newTaskList = filterTasks(taskManager.getList(), tabInfo.obj[tagName], tagType)
-    currentTabManager.setTaskArrOfTab(newTaskList)
-    renderProjectTab(container, tabInfo.obj, tabInfo.taskArr)
+    const categoryList = categoryManager.getList()
+    if (categoryList.includes(tabInfo.obj)){
+        handleCategoryTaskList()
+        renderCategoryTab(container, tabInfo.obj, tabInfo.taskArr)
+    }
+    else {
+        const newTaskList = filterTasks(taskManager.getList(), tabInfo.obj[tagName], tagType)
+        currentTabManager.setTaskArrOfTab(newTaskList)
+        renderProjectTab(container, tabInfo.obj, tabInfo.taskArr)
+    } 
+    // const newTaskList = filterTasks(taskManager.getList(), tabInfo.obj[tagName], tagType)
+    // currentTabManager.setTaskArrOfTab(newTaskList)
+    
     updateStorage("tasks", taskManager.getList())
 }
 
@@ -421,11 +441,11 @@ function handleCategoryTaskList(){
     const list = taskManager.getList()
     let taskList
     if (tabName === "Today"){
-        const date = dateManager.getCurrentDate()
+        const date = dateManager.formatDate(dateManager.getCurrentDate())
         taskList = filterTasks(list, date, "date") 
     }
     else if (tabName === "Tomorrow"){
-        const date = dateManager.getTomorrow()
+        const date = dateManager.formatDate(dateManager.getTomorrow())
         taskList = filterTasks(list, date, "date") 
     }
     else if (tabName === "Work" || tabName === "Personal"){
