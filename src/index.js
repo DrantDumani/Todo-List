@@ -41,12 +41,6 @@ const currentTabManager = (function(){
     }
 })()
 
-function populateList(managerObj, arr){
-    for (let el of arr){
-        managerObj.addItem(el)
-    }
-}
-
 window.addEventListener("load", () => {
     const projectList = getStorage("projects")
     const taskList = getStorage("tasks")
@@ -405,6 +399,37 @@ function toggleCompletionStatus(index){
     const completionStatus = !taskObj.complete
     const newTaskObj = {...taskObj, complete: completionStatus}
     taskManager.editItem(index, newTaskObj)
-    const taskList = filterTasks(taskManager.getList(), tabInfo.obj.name, "tag")
+    const categoryList = categoryManager.getList()
+    if (categoryList.includes(tabInfo.obj)){
+        handleCategoryTaskList()
+    }
+    else {
+        const taskList = filterTasks(taskManager.getList(), tabInfo.obj.name, "tag")
+        currentTabManager.setTaskArrOfTab(taskList)
+    } 
+    updateStorage("tasks", taskManager.getList())
+}
+
+function populateList(managerObj, arr){
+    for (let el of arr){
+        managerObj.addItem(el)
+    }
+}
+
+function handleCategoryTaskList(){
+    const tabName = currentTabManager.getCurrentTab().obj.name
+    const list = taskManager.getList()
+    let taskList
+    if (tabName === "Today"){
+        const date = dateManager.getCurrentDate()
+        taskList = filterTasks(list, date, "date") 
+    }
+    else if (tabName === "Tomorrow"){
+        const date = dateManager.getTomorrow()
+        taskList = filterTasks(list, date, "date") 
+    }
+    else if (tabName === "Work" || tabName === "Personal"){
+        taskList = filterTasks(list, tabName, "task-type")
+    }
     currentTabManager.setTaskArrOfTab(taskList)
 }
