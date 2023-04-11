@@ -197,7 +197,8 @@ document.body.addEventListener("submit", (e) => {
     handleProjectEdit(e);
   } else if (formId === "edit-task-form") {
     handleEditTaskSubmission(e);
-    fillTaskModal(e);
+    // fillTaskModal(e);
+    hideExpandTaskModal();
   }
 });
 

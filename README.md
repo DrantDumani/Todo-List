@@ -9,3 +9,11 @@ A modular approach was taken with this project, in order to separate responsibil
 ## Technologies used
 
 HTML, SCSS, Webpack, Javascript
+
+## Bugs
+
+- ~~ If a user is viewing one of the categories (Today, Tomorrow, Work, Personal) while attempting to delete a project, then the current category is wiped clean entirely ~~
+
+- There's another bug where tasks are sometimes overwritten or duplicated. I will have to isolate and look into that one. Maybe run a console.log to see where it occurs. It most likely has to do with how tasks are edited.
+
+- ~~ When editing tasks, if editing a task would remove it from the category tab a bug occurs where the task edit modal stays open and the console displays an error. This can be fixed by just closing all modals once a task is edited. ~~
