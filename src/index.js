@@ -78,7 +78,7 @@ window.addEventListener("load", () => {
   const projectTab = document.querySelector(".project-tab");
   renderCategoryList(categoryList, catContainer);
   renderProjectList(projectManager.getList(), projContainer);
-  renderCategoryTab(projectTab, tabInfo.obj, tabInfo.taskArr, "Today");
+  renderCategoryTab(projectTab, tabInfo.obj, tabInfo.taskArr);
 });
 
 document.body.addEventListener("click", (e) => {
@@ -265,6 +265,7 @@ function handleTabSelection(tabObj, index, taskArr, renderFn) {
 
 function handleProjectDeletion(e) {
   const container = document.querySelector(".project-list-container");
+  const tabInfo = currentTabManager.getCurrentTab();
   const tabObj = currentTabManager.getCurrentTab().obj;
   const projectTab = document.querySelector(".project-tab");
   const projIndex = findIndex(e);
@@ -279,8 +280,8 @@ function handleProjectDeletion(e) {
     }
   }
   if (categoryManager.getList().includes(tabObj)) {
-    let list = filterTasks(taskManager.getList(), tabObj.name, "tag");
-    renderCategoryTab(projectTab, tabObj, list);
+    handleCategoryTaskList();
+    renderCategoryTab(projectTab, tabObj, tabInfo.taskArr);
   }
   projectManager.deleteItem(clickedObj);
   renderProjectList(projectManager.getList(), container);
