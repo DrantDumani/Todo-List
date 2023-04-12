@@ -197,7 +197,7 @@ document.body.addEventListener("submit", (e) => {
     handleProjectEdit(e);
   } else if (formId === "edit-task-form") {
     handleEditTaskSubmission(e);
-    fillTaskModal(e);
+    hideExpandTaskModal();
   }
 });
 
@@ -432,9 +432,11 @@ function filterTasks(list, tag, tagType) {
 function toggleCompletionStatus(index) {
   const tabInfo = currentTabManager.getCurrentTab();
   const taskObj = tabInfo.taskArr[index];
+  const toggledTaskIndex = taskManager.getList().indexOf(taskObj);
+
   const completionStatus = !taskObj.complete;
   const newTaskObj = { ...taskObj, complete: completionStatus };
-  taskManager.editItem(index, newTaskObj);
+  taskManager.editItem(toggledTaskIndex, newTaskObj);
   const categoryList = categoryManager.getList();
   if (categoryList.includes(tabInfo.obj)) {
     handleCategoryTaskList();
