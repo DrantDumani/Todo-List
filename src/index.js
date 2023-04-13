@@ -28,7 +28,6 @@ import "./style.scss";
 const categoryManager = listManager();
 const projectManager = listManager();
 const taskManager = listManager();
-// let currentStorageFn = () => {};
 let currentStorageFn = handleLocalStorage;
 
 const currentTabManager = (function () {
@@ -266,7 +265,6 @@ function handleTabSelection(tabObj, index, taskArr, renderFn) {
 }
 
 function handleProjectDeletion(e) {
-  // const container = document.querySelector(".project-list-container");
   const tabInfo = currentTabManager.getCurrentTab();
   const tabObj = currentTabManager.getCurrentTab().obj;
   const projectTab = document.querySelector(".project-tab");
@@ -281,15 +279,7 @@ function handleProjectDeletion(e) {
       taskManager.deleteItem(taskList[i]);
     }
   }
-  // if (categoryManager.getList().includes(tabObj)) {
-  //   handleCategoryTaskList();
-  //   renderCategoryTab(projectTab, tabObj, tabInfo.taskArr);
-  // }
   projectManager.deleteItem(clickedObj);
-  // renderProjectList(projectManager.getList(), container);
-  // handleRendering(tabInfo);
-  // updateStorage("projects", projectManager.getList());
-  // updateStorage("tasks", taskManager.getList());
   currentStorageFn(projectManager.getList(), taskManager.getList(), tabInfo);
 }
 
@@ -317,7 +307,6 @@ function handleRendering(tabInfo) {
 }
 
 function handleProjectSubmission(e) {
-  // const container = document.querySelector(".project-list-container");
   const tabInfo = currentTabManager.getCurrentTab();
   const nameInput = document.querySelector("#project-name-input");
   const projList = projectManager.getList();
@@ -327,14 +316,10 @@ function handleProjectSubmission(e) {
     return;
   }
   projectManager.addItem(projectObj);
-  // renderProjectList(projList, container);
-  // updateStorage("projects", projList);
   currentStorageFn(projList, taskManager.getList(), tabInfo);
 }
 
 function handleProjectEdit(e) {
-  // const container = document.querySelector(".project-list-container");
-  // const tabContainer = document.querySelector(".project-tab");
   const nameInput = document.querySelector("#edit-project-name-input");
   const projList = projectManager.getList();
   const tabInfo = currentTabManager.getCurrentTab();
@@ -361,10 +346,6 @@ function handleProjectEdit(e) {
   );
   projectManager.editItem(tabInfo.index, projectObj);
   currentTabManager.setCurrentTab(projectObj, tabInfo.index, filterTaskList);
-  // renderProjectList(projectManager.getList(), container);
-  // renderProjectTab(tabContainer, projectObj, filterTaskList);
-  // updateStorage("projects", projList);
-  // updateStorage("tasks", taskList);
   currentStorageFn(projList, taskList, tabInfo);
 }
 
@@ -393,7 +374,6 @@ function handleEditTaskSubmission(e) {
   const categoryList = categoryManager.getList();
   if (categoryList.includes(tabInfo.obj)) {
     handleCategoryTaskList();
-    // renderCategoryTab(container, tabInfo.obj, tabInfo.taskArr);
   } else {
     const taskList = filterTasks(
       taskManager.getList(),
@@ -401,15 +381,12 @@ function handleEditTaskSubmission(e) {
       "tag"
     );
     currentTabManager.setTaskArrOfTab(taskList);
-    // renderProjectTab(container, tabInfo.obj, tabInfo.taskArr);
   }
   handleClosingEditTaskModal(e);
-  // updateStorage("tasks", fullTaskList);
   currentStorageFn(projectManager.getList(), fullTaskList, tabInfo);
 }
 
 function handleTaskSubmission(e) {
-  // const container = document.querySelector(".project-tab");
   const tabInfo = currentTabManager.getCurrentTab();
   const tabObj = tabInfo.obj;
   const taskNames = tabInfo.taskArr.map((task) => task.name);
@@ -423,13 +400,10 @@ function handleTaskSubmission(e) {
   taskManager.addItem(taskObj);
   const taskList = filterTasks(taskManager.getList(), tabObj.name, "tag");
   currentTabManager.setTaskArrOfTab(taskList);
-  // renderProjectTab(container, tabObj, tabInfo.taskArr);
-  // updateStorage("tasks", taskManager.getList());
   currentStorageFn(projectManager.getList(), taskManager.getList(), tabInfo);
 }
 
 function handleTaskDeletion(e, tagName, tagType) {
-  // const container = document.querySelector(".project-tab");
   const index = findIndex(e);
   const tabInfo = currentTabManager.getCurrentTab();
   const projTaskList = tabInfo.taskArr;
@@ -438,7 +412,6 @@ function handleTaskDeletion(e, tagName, tagType) {
   const categoryList = categoryManager.getList();
   if (categoryList.includes(tabInfo.obj)) {
     handleCategoryTaskList();
-    // renderCategoryTab(container, tabInfo.obj, tabInfo.taskArr);
   } else {
     const newTaskList = filterTasks(
       taskManager.getList(),
@@ -446,9 +419,7 @@ function handleTaskDeletion(e, tagName, tagType) {
       tagType
     );
     currentTabManager.setTaskArrOfTab(newTaskList);
-    // renderProjectTab(container, tabInfo.obj, tabInfo.taskArr);
   }
-  // updateStorage("tasks", taskManager.getList());
   currentStorageFn(projectManager.getList(), taskManager.getList(), tabInfo);
 }
 
@@ -482,7 +453,6 @@ function toggleCompletionStatus(index) {
     );
     currentTabManager.setTaskArrOfTab(taskList);
   }
-  // updateStorage("tasks", taskManager.getList());
   currentStorageFn(projectManager.getList(), taskManager.getList(), tabInfo);
 }
 
