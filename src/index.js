@@ -457,9 +457,7 @@ function toggleCompletionStatus(index) {
 }
 
 function populateList(managerObj, arr) {
-  for (let el of arr) {
-    managerObj.addItem(el);
-  }
+  managerObj.setList(arr);
 }
 
 function handleCategoryTaskList() {

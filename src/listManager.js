@@ -11,7 +11,10 @@ function listManager() {
   };
   const getList = () => list;
   const setList = (arr) => {
-    list = arr;
+    list.length = 0;
+    for (let el of arr) {
+      list.push(el);
+    }
   };
   return { addItem, editItem, deleteItem, getList, setList };
 }
