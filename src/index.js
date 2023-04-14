@@ -23,12 +23,42 @@ import {
 } from "./events";
 import * as dateManager from "./dateManager";
 import { getStorage, updateStorage } from "./localStorage";
+import app from "./firebaseConfig";
+import {
+  addLoginListenerToElement,
+  addLogoutListenerToElement,
+  setAuthListener,
+} from "./auth";
 import "./style.scss";
 
 const categoryManager = listManager();
 const projectManager = listManager();
 const taskManager = listManager();
 let currentStorageFn = handleLocalStorage;
+
+const loginBtn = document.querySelector("#login-btn");
+addLoginListenerToElement(loginBtn, "click");
+
+const logoutBtn = document.querySelector("#logout-btn");
+addLogoutListenerToElement(logoutBtn, "click");
+
+function whenAuthChange(userObj) {
+  const loginUI = document.querySelector(".login-container");
+  const logoutUI = document.querySelector(".logout-container");
+  if (userObj) {
+    loginUI.classList.add("hide");
+    logoutUI.classList.remove("hide");
+    logoutUI.classList.add("flex-container");
+    const nameField = logoutUI.querySelector("#username-field");
+    nameField.textContent = userObj.displayName;
+  } else {
+    loginUI.classList.remove("hide");
+    logoutUI.classList.add("hide");
+    logoutUI.classList.remove("flex-container");
+  }
+}
+
+setAuthListener(whenAuthChange);
 
 const currentTabManager = (function () {
   const tabInfo = {};
