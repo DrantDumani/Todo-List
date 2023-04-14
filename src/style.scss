@@ -39,6 +39,16 @@ header {
   .ui-container {
     align-self: center;
   }
+
+  .flex-container {
+    display: flex;
+    align-items: center;
+    gap: 0 1vw;
+
+    #username-field {
+      font-size: 18px;
+    }
+  }
 }
 
 .hide {
