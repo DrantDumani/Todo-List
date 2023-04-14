@@ -29,6 +29,7 @@ import {
   addLogoutListenerToElement,
   setAuthListener,
 } from "./auth";
+import { fetchUserTasks } from "./firestore";
 import "./style.scss";
 
 const categoryManager = listManager();
@@ -51,13 +52,13 @@ function whenAuthChange(userObj) {
     logoutUI.classList.add("flex-container");
     const nameField = logoutUI.querySelector("#username-field");
     nameField.textContent = userObj.displayName;
+    fetchUserTasks(userObj.uid);
   } else {
     loginUI.classList.remove("hide");
     logoutUI.classList.add("hide");
     logoutUI.classList.remove("flex-container");
   }
 }
-
 setAuthListener(whenAuthChange);
 
 const currentTabManager = (function () {
