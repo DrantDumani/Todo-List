@@ -315,25 +315,25 @@ function handleProjectDeletion(e) {
 }
 
 function handleLocalStorage(projectList, taskList, tabInfo) {
-  handleRendering(tabInfo);
+  handleRendering(tabInfo, taskManager.getList());
   updateStorage("projects", projectList);
   updateStorage("tasks", taskList);
 }
 
-function handleRendering(tabInfo) {
+function handleRendering(tabInfo, list) {
   const projListContainer = document.querySelector(".project-list-container");
   const tabObj = tabInfo.obj;
   const projectTab = document.querySelector(".project-tab");
   if (categoryManager.getList().includes(tabObj)) {
-    handleCategoryTaskList();
+    handleCategoryTaskList(list);
     renderCategoryTab(projectTab, tabObj, tabInfo.taskArr);
   }
 
   renderProjectList(projectManager.getList(), projListContainer);
 
   if (projectManager.getList().includes(tabObj)) {
-    const list = filterTasks(taskManager.getList(), tabObj.name, "tag");
-    renderProjectTab(projectTab, tabObj, list);
+    const filteredList = filterTasks(taskManager.getList(), tabObj.name, "tag");
+    renderProjectTab(projectTab, tabObj, filteredList);
   }
 }
 
@@ -404,7 +404,7 @@ function handleEditTaskSubmission(e) {
   const tabInfo = currentTabManager.getCurrentTab();
   const categoryList = categoryManager.getList();
   if (categoryList.includes(tabInfo.obj)) {
-    handleCategoryTaskList();
+    handleCategoryTaskList(taskManager.getList());
   } else {
     const taskList = filterTasks(
       taskManager.getList(),
@@ -442,7 +442,7 @@ function handleTaskDeletion(e, tagName, tagType) {
   taskManager.deleteItem(clickedTask);
   const categoryList = categoryManager.getList();
   if (categoryList.includes(tabInfo.obj)) {
-    handleCategoryTaskList();
+    handleCategoryTaskList(taskManager.getList());
   } else {
     const newTaskList = filterTasks(
       taskManager.getList(),
@@ -475,7 +475,7 @@ function toggleCompletionStatus(index) {
   taskManager.editItem(toggledTaskIndex, newTaskObj);
   const categoryList = categoryManager.getList();
   if (categoryList.includes(tabInfo.obj)) {
-    handleCategoryTaskList();
+    handleCategoryTaskList(taskManager.getList());
   } else {
     const taskList = filterTasks(
       taskManager.getList(),
@@ -488,23 +488,20 @@ function toggleCompletionStatus(index) {
 }
 
 function populateList(managerObj, arr) {
-  for (let el of arr) {
-    managerObj.addItem(el);
-  }
+  managerObj.setList(arr);
 }
 
-function handleCategoryTaskList() {
+function handleCategoryTaskList(list) {
   const tabName = currentTabManager.getCurrentTab().obj.name;
-  const list = taskManager.getList();
-  let taskList;
+  let filteredTasks;
   if (tabName === "Today") {
     const date = dateManager.formatDate(dateManager.getCurrentDate());
-    taskList = filterTasks(list, date, "date");
+    filteredTasks = filterTasks(list, date, "date");
   } else if (tabName === "Tomorrow") {
     const date = dateManager.formatDate(dateManager.getTomorrow());
-    taskList = filterTasks(list, date, "date");
+    filteredTasks = filterTasks(list, date, "date");
   } else if (tabName === "Work" || tabName === "Personal") {
-    taskList = filterTasks(list, tabName, "task-type");
+    filteredTasks = filterTasks(list, tabName, "task-type");
   }
-  currentTabManager.setTaskArrOfTab(taskList);
+  currentTabManager.setTaskArrOfTab(filteredTasks);
 }
