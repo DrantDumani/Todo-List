@@ -9,6 +9,10 @@ import {
 const auth = getAuth();
 const provider = new GoogleAuthProvider();
 
+export function getCurrentUserId() {
+  return auth.currentUser.uid;
+}
+
 async function signIn() {
   await signInWithPopup(auth, provider);
 }

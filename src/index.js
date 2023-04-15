@@ -30,13 +30,18 @@ import {
   setAuthListener,
   getCurrentUserId,
 } from "./auth";
-import { fetchUserTasks } from "./firestore";
+import {
+  fetchUserTasks,
+  updateFirestore,
+  setUnsubscribe,
+  unsubscribe,
+} from "./firestore";
 import "./style.scss";
 
 const categoryManager = listManager();
 const projectManager = listManager();
 const taskManager = listManager();
-let currentStorageFn = handleLocalStorage;
+let currentStorageFn = () => {};
 
 const loginBtn = document.querySelector("#login-btn");
 addLoginListenerToElement(loginBtn, "click");
@@ -47,6 +52,10 @@ addLogoutListenerToElement(logoutBtn, "click");
 function whenAuthChange(userObj) {
   const loginUI = document.querySelector(".login-container");
   const logoutUI = document.querySelector(".logout-container");
+  const tabObj = currentTabManager.getCurrentTab().obj;
+  if (!categoryManager.getList().includes(tabObj)) {
+    currentTabManager.setCurrentTab(categoryManager.getList()[0], 0, []);
+  }
   if (userObj) {
     loginUI.classList.add("hide");
     logoutUI.classList.remove("hide");
@@ -54,11 +63,15 @@ function whenAuthChange(userObj) {
     const nameField = logoutUI.querySelector("#username-field");
     nameField.textContent = userObj.displayName;
     fetchUserTasks(userObj.uid, renderFromFirestore);
+    setUnsubscribe(renderFromFirestore, userObj.uid);
+    currentStorageFn = handleFirestore;
   } else {
+    unsubscribe();
     loginUI.classList.remove("hide");
     logoutUI.classList.add("hide");
     logoutUI.classList.remove("flex-container");
     renderFromLocalStorage();
+    currentStorageFn = handleLocalStorage;
   }
 }
 setAuthListener(whenAuthChange);
@@ -300,7 +313,7 @@ function handleProjectDeletion(e) {
   const projectTab = document.querySelector(".project-tab");
   const projIndex = findIndex(e);
   const clickedObj = projectManager.getList()[projIndex];
-  if (tabObj === clickedObj) {
+  if (tabObj.name === clickedObj.name) {
     projectTab.replaceChildren();
   }
   const taskList = taskManager.getList();
@@ -319,10 +332,24 @@ function handleLocalStorage(projectList, taskList, tabInfo) {
   updateStorage("tasks", taskList);
 }
 
+function handleFirestore() {
+  const update = {
+    tasks: taskManager.getList(),
+    projects: projectManager.getList(),
+  };
+  const id = getCurrentUserId();
+  updateFirestore(update, id);
+}
+
 function renderFromFirestore(data) {
   const tabInfo = currentTabManager.getCurrentTab();
+  if (!data) {
+    data = { tasks: [], projects: [] };
+  }
   const { tasks, projects } = data;
-  handleRendering(tabInfo, tasks, projects);
+  populateList(projectManager, projects);
+  populateList(taskManager, tasks);
+  handleRendering(tabInfo, taskManager.getList(), projectManager.getList());
 }
 
 function handleRendering(tabInfo, taskList, projectList) {
@@ -336,7 +363,9 @@ function handleRendering(tabInfo, taskList, projectList) {
 
   renderProjectList(projectList, projListContainer);
 
-  if (projectManager.getList().includes(tabObj)) {
+  const tabObjName = tabObj.name;
+  const projectNames = projectManager.getList().map((project) => project.name);
+  if (projectNames.includes(tabObjName)) {
     const filteredList = filterTasks(taskList, tabObj.name, "tag");
     renderProjectTab(projectTab, tabObj, filteredList);
   }

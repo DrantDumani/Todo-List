@@ -5,10 +5,12 @@ import {
   addDoc,
   setDoc,
   getDoc,
+  onSnapshot,
 } from "firebase/firestore";
 import app from "./firebaseConfig";
 
 const database = getFirestore();
+export let unsubscribe = () => {};
 
 export async function fetchUserTasks(userId, callback) {
   const docRef = doc(database, "userTasks", userId);
@@ -21,4 +23,14 @@ export async function fetchUserTasks(userId, callback) {
       tasks: [],
     });
   }
+}
+
+export function updateFirestore(obj, userId) {
+  setDoc(doc(database, "userTasks", userId), obj);
+}
+
+export function setUnsubscribe(callback, userId) {
+  unsubscribe = onSnapshot(doc(database, "userTasks", userId), (doc) => {
+    callback(doc.data());
+  });
 }
