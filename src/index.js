@@ -284,24 +284,24 @@ function handleProjectDeletion(e) {
 }
 
 function handleLocalStorage(projectList, taskList, tabInfo) {
-  handleRendering(tabInfo, taskManager.getList());
+  handleRendering(tabInfo, taskList, projectList);
   updateStorage("projects", projectList);
   updateStorage("tasks", taskList);
 }
 
-function handleRendering(tabInfo, list) {
+function handleRendering(tabInfo, taskList, projectList) {
   const projListContainer = document.querySelector(".project-list-container");
   const tabObj = tabInfo.obj;
   const projectTab = document.querySelector(".project-tab");
   if (categoryManager.getList().includes(tabObj)) {
-    handleCategoryTaskList(list);
+    handleCategoryTaskList(taskList);
     renderCategoryTab(projectTab, tabObj, tabInfo.taskArr);
   }
 
-  renderProjectList(projectManager.getList(), projListContainer);
+  renderProjectList(projectList, projListContainer);
 
   if (projectManager.getList().includes(tabObj)) {
-    const filteredList = filterTasks(taskManager.getList(), tabObj.name, "tag");
+    const filteredList = filterTasks(taskList, tabObj.name, "tag");
     renderProjectTab(projectTab, tabObj, filteredList);
   }
 }
