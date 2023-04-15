@@ -23,12 +23,58 @@ import {
 } from "./events";
 import * as dateManager from "./dateManager";
 import { getStorage, updateStorage } from "./localStorage";
+import app from "./firebaseConfig";
+import {
+  addLoginListenerToElement,
+  addLogoutListenerToElement,
+  setAuthListener,
+  getCurrentUserId,
+} from "./auth";
+import {
+  fetchUserTasks,
+  updateFirestore,
+  setUnsubscribe,
+  unsubscribe,
+} from "./firestore";
 import "./style.scss";
 
 const categoryManager = listManager();
 const projectManager = listManager();
 const taskManager = listManager();
-let currentStorageFn = handleLocalStorage;
+let currentStorageFn = () => {};
+
+const loginBtn = document.querySelector("#login-btn");
+addLoginListenerToElement(loginBtn, "click");
+
+const logoutBtn = document.querySelector("#logout-btn");
+addLogoutListenerToElement(logoutBtn, "click");
+
+function whenAuthChange(userObj) {
+  const loginUI = document.querySelector(".login-container");
+  const logoutUI = document.querySelector(".logout-container");
+  const tabObj = currentTabManager.getCurrentTab().obj;
+  if (!categoryManager.getList().includes(tabObj)) {
+    currentTabManager.setCurrentTab(categoryManager.getList()[0], 0, []);
+  }
+  if (userObj) {
+    loginUI.classList.add("hide");
+    logoutUI.classList.remove("hide");
+    logoutUI.classList.add("flex-container");
+    const nameField = logoutUI.querySelector("#username-field");
+    nameField.textContent = userObj.displayName;
+    fetchUserTasks(userObj.uid, renderFromFirestore);
+    setUnsubscribe(renderFromFirestore, userObj.uid);
+    currentStorageFn = handleFirestore;
+  } else {
+    unsubscribe();
+    loginUI.classList.remove("hide");
+    logoutUI.classList.add("hide");
+    logoutUI.classList.remove("flex-container");
+    renderFromLocalStorage();
+    currentStorageFn = handleLocalStorage;
+  }
+}
+setAuthListener(whenAuthChange);
 
 const currentTabManager = (function () {
   const tabInfo = {};
@@ -58,7 +104,7 @@ const currentTabManager = (function () {
   }
 })();
 
-window.addEventListener("load", () => {
+function renderFromLocalStorage() {
   const projectList = getStorage("projects");
   const taskList = getStorage("tasks");
   if (projectList) {
@@ -68,18 +114,15 @@ window.addEventListener("load", () => {
     populateList(taskManager, taskList);
   }
 
-  const categoryList = categoryManager.getList();
-  let list = taskManager.getList();
-  let today = dateManager.formatDate(dateManager.getCurrentDate());
-  let filteredList = filterTasks(list, today, "date");
-  currentTabManager.setCurrentTab(categoryList[0], 0, filteredList);
   let tabInfo = currentTabManager.getCurrentTab();
+  handleRendering(tabInfo, taskManager.getList(), projectManager.getList());
+}
+
+window.addEventListener("load", () => {
+  const categoryList = categoryManager.getList();
+  currentTabManager.setCurrentTab(categoryList[0], 0, []);
   const catContainer = document.querySelector(".category-list-container");
-  const projContainer = document.querySelector(".project-list-container");
-  const projectTab = document.querySelector(".project-tab");
   renderCategoryList(categoryList, catContainer);
-  renderProjectList(projectManager.getList(), projContainer);
-  renderCategoryTab(projectTab, tabInfo.obj, tabInfo.taskArr);
 });
 
 document.body.addEventListener("click", (e) => {
@@ -270,7 +313,7 @@ function handleProjectDeletion(e) {
   const projectTab = document.querySelector(".project-tab");
   const projIndex = findIndex(e);
   const clickedObj = projectManager.getList()[projIndex];
-  if (tabObj === clickedObj) {
+  if (tabObj.name === clickedObj.name) {
     projectTab.replaceChildren();
   }
   const taskList = taskManager.getList();
@@ -289,6 +332,26 @@ function handleLocalStorage(projectList, taskList, tabInfo) {
   updateStorage("tasks", taskList);
 }
 
+function handleFirestore() {
+  const update = {
+    tasks: taskManager.getList(),
+    projects: projectManager.getList(),
+  };
+  const id = getCurrentUserId();
+  updateFirestore(update, id);
+}
+
+function renderFromFirestore(data) {
+  const tabInfo = currentTabManager.getCurrentTab();
+  if (!data) {
+    data = { tasks: [], projects: [] };
+  }
+  const { tasks, projects } = data;
+  populateList(projectManager, projects);
+  populateList(taskManager, tasks);
+  handleRendering(tabInfo, taskManager.getList(), projectManager.getList());
+}
+
 function handleRendering(tabInfo, taskList, projectList) {
   const projListContainer = document.querySelector(".project-list-container");
   const tabObj = tabInfo.obj;
@@ -300,7 +363,9 @@ function handleRendering(tabInfo, taskList, projectList) {
 
   renderProjectList(projectList, projListContainer);
 
-  if (projectManager.getList().includes(tabObj)) {
+  const tabObjName = tabObj.name;
+  const projectNames = projectManager.getList().map((project) => project.name);
+  if (projectNames.includes(tabObjName)) {
     const filteredList = filterTasks(taskList, tabObj.name, "tag");
     renderProjectTab(projectTab, tabObj, filteredList);
   }
