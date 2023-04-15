@@ -28,6 +28,7 @@ import {
   addLoginListenerToElement,
   addLogoutListenerToElement,
   setAuthListener,
+  getCurrentUserId,
 } from "./auth";
 import { fetchUserTasks } from "./firestore";
 import "./style.scss";
@@ -52,11 +53,12 @@ function whenAuthChange(userObj) {
     logoutUI.classList.add("flex-container");
     const nameField = logoutUI.querySelector("#username-field");
     nameField.textContent = userObj.displayName;
-    fetchUserTasks(userObj.uid);
+    fetchUserTasks(userObj.uid, renderFromFirestore);
   } else {
     loginUI.classList.remove("hide");
     logoutUI.classList.add("hide");
     logoutUI.classList.remove("flex-container");
+    renderFromLocalStorage();
   }
 }
 setAuthListener(whenAuthChange);
@@ -89,7 +91,7 @@ const currentTabManager = (function () {
   }
 })();
 
-window.addEventListener("load", () => {
+function renderFromLocalStorage() {
   const projectList = getStorage("projects");
   const taskList = getStorage("tasks");
   if (projectList) {
@@ -99,18 +101,15 @@ window.addEventListener("load", () => {
     populateList(taskManager, taskList);
   }
 
-  const categoryList = categoryManager.getList();
-  let list = taskManager.getList();
-  let today = dateManager.formatDate(dateManager.getCurrentDate());
-  let filteredList = filterTasks(list, today, "date");
-  currentTabManager.setCurrentTab(categoryList[0], 0, filteredList);
   let tabInfo = currentTabManager.getCurrentTab();
+  handleRendering(tabInfo, taskManager.getList(), projectManager.getList());
+}
+
+window.addEventListener("load", () => {
+  const categoryList = categoryManager.getList();
+  currentTabManager.setCurrentTab(categoryList[0], 0, []);
   const catContainer = document.querySelector(".category-list-container");
-  const projContainer = document.querySelector(".project-list-container");
-  const projectTab = document.querySelector(".project-tab");
   renderCategoryList(categoryList, catContainer);
-  renderProjectList(projectManager.getList(), projContainer);
-  renderCategoryTab(projectTab, tabInfo.obj, tabInfo.taskArr);
 });
 
 document.body.addEventListener("click", (e) => {
@@ -318,6 +317,12 @@ function handleLocalStorage(projectList, taskList, tabInfo) {
   handleRendering(tabInfo, taskList, projectList);
   updateStorage("projects", projectList);
   updateStorage("tasks", taskList);
+}
+
+function renderFromFirestore(data) {
+  const tabInfo = currentTabManager.getCurrentTab();
+  const { tasks, projects } = data;
+  handleRendering(tabInfo, tasks, projects);
 }
 
 function handleRendering(tabInfo, taskList, projectList) {
