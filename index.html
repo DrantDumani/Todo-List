@@ -1,181 +1,281 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Todo List</title>
-<script defer src="runtime.js"></script><script defer src="index.js"></script></head>
+  <script defer src="runtime.js"></script><script defer src="index.js"></script></head>
 
-<body>
+  <body>
     <div class="page-container">
-        <header>
-            <h1 class="title">Todo List</h1>
-            <button class="mobile-burger">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-menu-2 mobile-burger" width="48" height="48" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <line x1="4" y1="6" x2="20" y2="6"></line>
-                    <line x1="4" y1="12" x2="20" y2="12"></line>
-                    <line x1="4" y1="18" x2="20" y2="18"></line>
-                 </svg>
-            </button>
-        </header>
-        <main class="page-content">
-            <div class="sidebar-nav">
-                <div class="category-div">
-                    <h2>Categories</h2>
-                    <ul class="category-list-container"></ul>
-                </div>
-                <div class="project-div">
-                    <h2>Projects</h2>
-                    <ul class="project-list-container"></ul>
-                </div>
-            </div>
-            <div class="project-tab"></div>
-        </main>
-        <footer>
-            <p>Created by Darnell
-                <a class="footer-link" href="https://github.com/DrantDumani/Todo-List" target="_blank">Github</a>
-            </p>
-        </footer>
+      <header>
+        <h1 class="title">Todo List</h1>
+        <button class="mobile-burger">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="icon icon-tabler icon-tabler-menu-2 mobile-burger"
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="18" x2="20" y2="18"></line>
+          </svg>
+        </button>
+        <div class="login-container ui-container">
+          <button id="login-btn">Log In</button>
+        </div>
+        <div class="logout-container ui-container hide">
+          <span id="username-field"></span>
+          <button id="logout-btn">Log out</button>
+        </div>
+      </header>
+      <main class="page-content">
+        <div class="sidebar-nav">
+          <div class="category-div">
+            <h2>Categories</h2>
+            <ul class="category-list-container"></ul>
+          </div>
+          <div class="project-div">
+            <h2>Projects</h2>
+            <ul class="project-list-container"></ul>
+          </div>
+        </div>
+        <div class="project-tab"></div>
+      </main>
+      <footer>
+        <p>
+          Created by Darnell
+          <a
+            class="footer-link"
+            href="https://github.com/DrantDumani/Todo-List"
+            target="_blank"
+            >Github</a
+          >
+        </p>
+      </footer>
     </div>
     <div class="modal project-form-div hide">
-        <form id="project-form">
-            <div class="input-container">
-                <label for="project-name-input">Name: </label>
-                <input id="project-name-input" type="text" name="name" maxlength="75" required>
-            </div>
-            <div class="input-container">
-                <label for="project-desc-input">Description: </label>
-                <textarea id="project-desc-input" name="desc" maxlength="200"></textarea>
-            </div>
-            <div class="btn-container">
-                <input class="submit-project-btn" type="submit" value="Add">
-                <button class="close-project-modal">Cancel</button>
-            </div>
-        </form>
+      <form id="project-form">
+        <div class="input-container">
+          <label for="project-name-input">Name: </label>
+          <input
+            id="project-name-input"
+            type="text"
+            name="name"
+            maxlength="75"
+            required
+          />
+        </div>
+        <div class="input-container">
+          <label for="project-desc-input">Description: </label>
+          <textarea
+            id="project-desc-input"
+            name="desc"
+            maxlength="200"
+          ></textarea>
+        </div>
+        <div class="btn-container">
+          <input class="submit-project-btn" type="submit" value="Add" />
+          <button class="close-project-modal">Cancel</button>
+        </div>
+      </form>
     </div>
     <div class="modal task-form-div hide">
-        <form id="task-form">
-            <div class="input-container">
-                <label for="task-name-input">Name: </label>
-                <input id="task-name-input" type="text" name="name" maxlength="75" required>
-            </div>
-            <div class="input-container">
-                <label for="task-desc-input">Description: </label>
-                <textarea id="task-desc-input" type="text" name="desc" maxlength="200"></textarea>
-            </div>
-            <div class="input-container">
-                <label for="task-date">Due date: </label>
-                <input id="task-date" type="date" name="date">
-            </div>
-            <fieldset class="task-type-container">
-                <legend>What type of task is this?</legend>
-                <div class="radio-container">
-                    <input type="radio" value="Work" id="work" name="task-type">
-                    <label for="work">Work</label>
-                </div>
-                <div class="radio-container">
-                    <input type="radio" value="Personal" id="personal" name="task-type" checked>
-                    <label for="personal">Personal</label>
-                </div>
-            </fieldset>
-            <fieldset class="task-priority-container">
-                <legend>What is this task's priority?</legend>
-                <div class="radio-container">
-                    <input type="radio" value="Low" id="low" name="task-priority">
-                    <label for="low">Low</label>
-                </div>
-                <div class="radio-container">
-                    <input type="radio" value="Medium" id="medium" name="task-priority" checked>
-                    <label for="medium">Medium</label>
-                </div>
-                <div class="radio-container">
-                    <input type="radio" value="High" id="high" name="task-priority">
-                    <label for="high">High</label>
-                </div>
-            </fieldset>
-            <div class="btn-container">
-                <input class="submit-task-btn" type="submit" value="Add Task">
-                <button class="close-task-modal">Cancel</button>
-            </div>
-        </form>
+      <form id="task-form">
+        <div class="input-container">
+          <label for="task-name-input">Name: </label>
+          <input
+            id="task-name-input"
+            type="text"
+            name="name"
+            maxlength="75"
+            required
+          />
+        </div>
+        <div class="input-container">
+          <label for="task-desc-input">Description: </label>
+          <textarea
+            id="task-desc-input"
+            type="text"
+            name="desc"
+            maxlength="200"
+          ></textarea>
+        </div>
+        <div class="input-container">
+          <label for="task-date">Due date: </label>
+          <input id="task-date" type="date" name="date" />
+        </div>
+        <fieldset class="task-type-container">
+          <legend>What type of task is this?</legend>
+          <div class="radio-container">
+            <input type="radio" value="Work" id="work" name="task-type" />
+            <label for="work">Work</label>
+          </div>
+          <div class="radio-container">
+            <input
+              type="radio"
+              value="Personal"
+              id="personal"
+              name="task-type"
+              checked
+            />
+            <label for="personal">Personal</label>
+          </div>
+        </fieldset>
+        <fieldset class="task-priority-container">
+          <legend>What is this task's priority?</legend>
+          <div class="radio-container">
+            <input type="radio" value="Low" id="low" name="task-priority" />
+            <label for="low">Low</label>
+          </div>
+          <div class="radio-container">
+            <input
+              type="radio"
+              value="Medium"
+              id="medium"
+              name="task-priority"
+              checked
+            />
+            <label for="medium">Medium</label>
+          </div>
+          <div class="radio-container">
+            <input type="radio" value="High" id="high" name="task-priority" />
+            <label for="high">High</label>
+          </div>
+        </fieldset>
+        <div class="btn-container">
+          <input class="submit-task-btn" type="submit" value="Add Task" />
+          <button class="close-task-modal">Cancel</button>
+        </div>
+      </form>
     </div>
     <div class="modal edit-project-div hide">
-        <form id="edit-project-form">
-            <div class="input-container">
-                <label for="edit-project-name-input">Name: </label>
-                <input id="edit-project-name-input" type="text" name="name" maxlength="75" required>
-            </div>
-            <div class="input-container">
-                <label for="edit-project-desc-input">Description: </label>
-                <textarea id="edit-project-desc-input" name="desc" maxlength="200"></textarea>
-            </div>
-            <div class="btn-container">
-                <input class="submit-edit-project" type="submit" value="Edit Project">
-                <button class="close-edit-project-modal">Cancel</button>
-            </div>
-        </form>
+      <form id="edit-project-form">
+        <div class="input-container">
+          <label for="edit-project-name-input">Name: </label>
+          <input
+            id="edit-project-name-input"
+            type="text"
+            name="name"
+            maxlength="75"
+            required
+          />
+        </div>
+        <div class="input-container">
+          <label for="edit-project-desc-input">Description: </label>
+          <textarea
+            id="edit-project-desc-input"
+            name="desc"
+            maxlength="200"
+          ></textarea>
+        </div>
+        <div class="btn-container">
+          <input
+            class="submit-edit-project"
+            type="submit"
+            value="Edit Project"
+          />
+          <button class="close-edit-project-modal">Cancel</button>
+        </div>
+      </form>
     </div>
     <div class="expanded-task-info modal hide">
-        <div class="task-info-container">
-            <h2 class="task-title"></h2>
-            <p class="task-description"></p>
-            <p class="task-date-info"></p>
-            <p class="task-type-info"></p>
-            <p class="task-priority-info"></p>
-            <button class="edit-task-btn">Edit task</button>
-            <button class="close-expandTask-modal">Close</button>
-        </div>
+      <div class="task-info-container">
+        <h2 class="task-title"></h2>
+        <p class="task-description"></p>
+        <p class="task-date-info"></p>
+        <p class="task-type-info"></p>
+        <p class="task-priority-info"></p>
+        <button class="edit-task-btn">Edit task</button>
+        <button class="close-expandTask-modal">Close</button>
+      </div>
     </div>
 
     <div class="modal edit-task-form-div hide">
-        <form id="edit-task-form">
-            <div class="input-container">
-                <label for="edit-task-name-input">Name: </label>
-                <input id="edit-task-name-input" type="text" name="name" required maxlength="75">
-            </div>
-            <div class="input-container">
-                <label for="edit-task-desc-input">Description: </label>
-                <textarea id="edit-task-desc-input" type="text" name="desc" maxlength="200"></textarea>
-            </div>
-            <div class="input-container">
-                <label for="edit-task-date">Due date: </label>
-                <input id="edit-task-date" type="date" name="date">
-            </div>
-            <fieldset class="task-type-container">
-                <legend>What type of task is this?</legend>
-                <div class="radio-container">
-                    <input type="radio" value="Work" id="edit-work" name="task-type">
-                    <label for="edit-work">Work</label>
-                </div>
-                <div class="radio-container">
-                    <input type="radio" value="Personal" id="edit-personal" name="task-type">
-                    <label for="edit-personal">Personal</label>
-                </div>
-            </fieldset>
-            <fieldset class="task-priority-container">
-                <legend>What is this task's priority?</legend>
-                <div class="radio-container">
-                    <input type="radio" value="Low" id="edit-low" name="task-priority">
-                    <label for="edit-low">Low</label>
-                </div>
-                <div class="radio-container">
-                    <input type="radio" value="Medium" id="edit-medium" name="task-priority">
-                    <label for="edit-medium">Medium</label>
-                </div>
-                <div class="radio-container">
-                    <input type="radio" value="High" id="edit-high" name="task-priority">
-                    <label for="edit-high">High</label>
-                </div>
-            </fieldset>
-            <div class="btn-container">
-                <input class="submit-edit-task-btn" type="submit" value="Add Task">
-                <button class="close-edit-task-modal">Cancel</button>
-            </div>
-        </form>
+      <form id="edit-task-form">
+        <div class="input-container">
+          <label for="edit-task-name-input">Name: </label>
+          <input
+            id="edit-task-name-input"
+            type="text"
+            name="name"
+            required
+            maxlength="75"
+          />
+        </div>
+        <div class="input-container">
+          <label for="edit-task-desc-input">Description: </label>
+          <textarea
+            id="edit-task-desc-input"
+            type="text"
+            name="desc"
+            maxlength="200"
+          ></textarea>
+        </div>
+        <div class="input-container">
+          <label for="edit-task-date">Due date: </label>
+          <input id="edit-task-date" type="date" name="date" />
+        </div>
+        <fieldset class="task-type-container">
+          <legend>What type of task is this?</legend>
+          <div class="radio-container">
+            <input type="radio" value="Work" id="edit-work" name="task-type" />
+            <label for="edit-work">Work</label>
+          </div>
+          <div class="radio-container">
+            <input
+              type="radio"
+              value="Personal"
+              id="edit-personal"
+              name="task-type"
+            />
+            <label for="edit-personal">Personal</label>
+          </div>
+        </fieldset>
+        <fieldset class="task-priority-container">
+          <legend>What is this task's priority?</legend>
+          <div class="radio-container">
+            <input
+              type="radio"
+              value="Low"
+              id="edit-low"
+              name="task-priority"
+            />
+            <label for="edit-low">Low</label>
+          </div>
+          <div class="radio-container">
+            <input
+              type="radio"
+              value="Medium"
+              id="edit-medium"
+              name="task-priority"
+            />
+            <label for="edit-medium">Medium</label>
+          </div>
+          <div class="radio-container">
+            <input
+              type="radio"
+              value="High"
+              id="edit-high"
+              name="task-priority"
+            />
+            <label for="edit-high">High</label>
+          </div>
+        </fieldset>
+        <div class="btn-container">
+          <input class="submit-edit-task-btn" type="submit" value="Add Task" />
+          <button class="close-edit-task-modal">Cancel</button>
+        </div>
+      </form>
     </div>
-</body>
-
+  </body>
 </html>
