@@ -316,7 +316,7 @@ function handleProjectDeletion(e) {
   if (tabObj.name === clickedObj.name) {
     projectTab.replaceChildren();
   }
-  const taskList = taskManager.getList();
+  const taskList = [...taskManager.getList()];
   for (let i = 0; i < taskList.length; i++) {
     if (taskList[i].tag === clickedObj.name) {
       taskManager.deleteItem(taskList[i]);
@@ -389,6 +389,7 @@ function handleProjectEdit(e) {
   const projList = projectManager.getList();
   const tabInfo = currentTabManager.getCurrentTab();
   const projTaskList = tabInfo.taskArr;
+  const projTaskNames = projTaskList.map((task) => task.name);
   const currentProjName = tabInfo.obj.name;
   const projectNames = projList
     .map((proj) => proj.name)
@@ -399,7 +400,7 @@ function handleProjectEdit(e) {
   }
   const taskList = taskManager.getList();
   for (let i = 0; i < taskList.length; i++) {
-    if (projTaskList.includes(taskList[i])) {
+    if (projTaskNames.includes(taskList[i].name)) {
       const newTaggedTask = { ...taskList[i], tag: projectObj.name };
       taskManager.editItem(i, newTaggedTask);
     }
@@ -416,25 +417,21 @@ function handleProjectEdit(e) {
 
 function handleEditTaskSubmission(e) {
   const taskIndex = Number(e.target.dataset.index);
-  const container = document.querySelector(".project-tab");
   const oldTaskObj = currentTabManager.getCurrentTab().taskArr[taskIndex];
   const oldTaskName = oldTaskObj.name;
-  const taskNames = taskManager
+  const filteredTaskNames = taskManager
     .getList()
     .map((task) => task.name)
     .filter((name) => name !== oldTaskName);
-  const taskObj = submitEditTaskObj(e, taskNames);
+  const taskObj = submitEditTaskObj(e, filteredTaskNames);
   if (!taskObj) {
     return;
   }
   const newTaskObj = { ...oldTaskObj, ...taskObj };
   newTaskObj.date = dateManager.formatHTMLDate(newTaskObj.date);
   const fullTaskList = taskManager.getList();
-  for (let i = 0; i < fullTaskList.length; i++) {
-    if (fullTaskList[i] === oldTaskObj) {
-      taskManager.editItem(i, newTaskObj);
-    }
-  }
+  const allTaskNames = fullTaskList.map((task) => task.name);
+  taskManager.editItem(allTaskNames.indexOf(oldTaskName), newTaskObj);
   const tabInfo = currentTabManager.getCurrentTab();
   const categoryList = categoryManager.getList();
   if (categoryList.includes(tabInfo.obj)) {

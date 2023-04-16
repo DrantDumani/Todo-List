@@ -7,7 +7,10 @@ function listManager() {
     list[index] = item;
   };
   const deleteItem = (item) => {
-    list.splice(list.indexOf(item), 1);
+    const names = list.map((el) => el.name);
+    const index = names.indexOf(item.name);
+    list.splice(index, 1);
+    console.log("times called");
   };
   const getList = () => list;
   const setList = (arr) => {
