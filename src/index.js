@@ -389,6 +389,7 @@ function handleProjectEdit(e) {
   const projList = projectManager.getList();
   const tabInfo = currentTabManager.getCurrentTab();
   const projTaskList = tabInfo.taskArr;
+  const projTaskNames = projTaskList.map((task) => task.name);
   const currentProjName = tabInfo.obj.name;
   const projectNames = projList
     .map((proj) => proj.name)
@@ -399,7 +400,7 @@ function handleProjectEdit(e) {
   }
   const taskList = taskManager.getList();
   for (let i = 0; i < taskList.length; i++) {
-    if (projTaskList.includes(taskList[i])) {
+    if (projTaskNames.includes(taskList[i].name)) {
       const newTaggedTask = { ...taskList[i], tag: projectObj.name };
       taskManager.editItem(i, newTaggedTask);
     }
