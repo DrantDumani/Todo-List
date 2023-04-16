@@ -316,7 +316,7 @@ function handleProjectDeletion(e) {
   if (tabObj.name === clickedObj.name) {
     projectTab.replaceChildren();
   }
-  const taskList = taskManager.getList();
+  const taskList = [...taskManager.getList()];
   for (let i = 0; i < taskList.length; i++) {
     if (taskList[i].tag === clickedObj.name) {
       taskManager.deleteItem(taskList[i]);

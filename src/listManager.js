@@ -10,6 +10,7 @@ function listManager() {
     const names = list.map((el) => el.name);
     const index = names.indexOf(item.name);
     list.splice(index, 1);
+    console.log("times called");
   };
   const getList = () => list;
   const setList = (arr) => {
