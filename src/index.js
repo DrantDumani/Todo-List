@@ -416,25 +416,21 @@ function handleProjectEdit(e) {
 
 function handleEditTaskSubmission(e) {
   const taskIndex = Number(e.target.dataset.index);
-  const container = document.querySelector(".project-tab");
   const oldTaskObj = currentTabManager.getCurrentTab().taskArr[taskIndex];
   const oldTaskName = oldTaskObj.name;
-  const taskNames = taskManager
+  const filteredTaskNames = taskManager
     .getList()
     .map((task) => task.name)
     .filter((name) => name !== oldTaskName);
-  const taskObj = submitEditTaskObj(e, taskNames);
+  const taskObj = submitEditTaskObj(e, filteredTaskNames);
   if (!taskObj) {
     return;
   }
   const newTaskObj = { ...oldTaskObj, ...taskObj };
   newTaskObj.date = dateManager.formatHTMLDate(newTaskObj.date);
   const fullTaskList = taskManager.getList();
-  for (let i = 0; i < fullTaskList.length; i++) {
-    if (fullTaskList[i] === oldTaskObj) {
-      taskManager.editItem(i, newTaskObj);
-    }
-  }
+  const allTaskNames = fullTaskList.map((task) => task.name);
+  taskManager.editItem(allTaskNames.indexOf(oldTaskName), newTaskObj);
   const tabInfo = currentTabManager.getCurrentTab();
   const categoryList = categoryManager.getList();
   if (categoryList.includes(tabInfo.obj)) {
