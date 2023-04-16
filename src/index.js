@@ -499,7 +499,10 @@ function filterTasks(list, tag, tagType) {
 function toggleCompletionStatus(index) {
   const tabInfo = currentTabManager.getCurrentTab();
   const taskObj = tabInfo.taskArr[index];
-  const toggledTaskIndex = taskManager.getList().indexOf(taskObj);
+  const toggledTaskIndex = taskManager
+    .getList()
+    .map((task) => task.name)
+    .indexOf(taskObj.name);
 
   const completionStatus = !taskObj.complete;
   const newTaskObj = { ...taskObj, complete: completionStatus };
